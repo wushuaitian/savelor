@@ -4,7 +4,7 @@
         <div class="navigation flex align-center justify-between">
             <div class="logo flex align-center">
                 <img src="/img/logo.png" alt="" class="logo-img">
-                <div class="logo-text">LOONOOL</div>
+                <div class="logo-text">SAVELOR</div>
             </div>
             <!-- 导航栏菜单 -->
             <div class="naviga-menu flex align-center">

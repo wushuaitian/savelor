@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devServer: {
-    host: '192.168.1.199',//自己电脑的Ip
+    host: '192.168.0.251',//自己电脑的Ip
     port: 3000,
   },
 
@@ -56,7 +56,7 @@ export default defineNuxtConfig({
   // 标签页设置
   app: {
     head: {
-      title: 'LOONOOL',
+      title: 'SAVELOR',
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/img/logo.png' }
       ],
