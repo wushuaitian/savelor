@@ -3,18 +3,33 @@
     <div class="home">
         <!-- 介绍 -->
         <div class="introduc introduc-one bg-img">
-            <div class="introduc-title text-bold-600">视觉内容进入商业世界前的安全层。</div>
-            <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">查重・存证・维权 —— 一站式原创设计保护平台</div>
-            <div class="introduc-text-one p-t-20 text-16 text-bold-600 text-center">精准识别抄袭风险，锁定原创权属，让每一份创意都有专属 “保护盾”
+            <div class="introduc-title text-bold-600">让复杂流程变简单执行</div>
+            <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">从商标注册到专利申请，从公司设立到资质认证</div>
+
+            <!-- 类型选择按钮 -->
+            <div class="type-container flex align-center justify-center p-t-50">
+                <div v-for="type in projectTypes" :key="type.value" class="type-btn"
+                    :class="{ 'type-btn-active': selectedType === type.value }" @click="selectType(type.value)">
+                    {{ type.label }}
+                </div>
+            </div>
+
+            <!-- 地区下拉框（仅企业认证时显示） -->
+            <div class="region-container flex align-center justify-center p-t-30" v-if="selectedType === 'enterprise'">
+                <el-select v-model="selectedRegion" placeholder="请选择地区" class="region-select"
+                    popper-class="region-select-dropdown">
+                    <el-option v-for="region in regions" :key="region.value" :label="region.label"
+                        :value="region.value" />
+                </el-select>
             </div>
 
             <!-- 输入框和按钮区域 -->
-            <div class="input-container flex align-center justify-center p-t-50">
+            <div class="input-container flex align-center justify-center p-t-30">
                 <div class="input-wrapper flex align-center">
-                    <input type="text" class="space-input" placeholder="点击创建空间名称" v-model="spaceName"
-                        @focus="inputFocus" @blur="inputBlur" />
-                    <button class="enter-btn" @click="enterSpace">
-                        <span class="btn-text">进入</span>
+                    <input type="text" class="space-input" placeholder="请输入项目名称" v-model="spaceName" @focus="inputFocus"
+                        @blur="inputBlur" />
+                    <button class="enter-btn" :disabled="!canCreate" @click="enterSpace">
+                        <span class="btn-text">创建项目</span>
                     </button>
                 </div>
             </div>
@@ -26,12 +41,55 @@
 import { loonoolWorkspaces } from "../../composables/login";
 import { ElMessage } from 'element-plus'
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+
+// 项目类型
+const projectTypes = [
+    { label: '企业认证', value: 'enterprise' },
+    { label: '商标注册', value: 'trademark' },
+    { label: '专利申请', value: 'patent' }
+]
+
+// 选中的类型
+const selectedType = ref('enterprise')
+
+// 地区选项
+const regions = [
+    { label: '美国', value: 'us' },
+    { label: '中国', value: 'cn' },
+    { label: '欧洲', value: 'eu' },
+    { label: '日本', value: 'jp' },
+    { label: '韩国', value: 'kr' },
+    { label: '其他', value: 'other' }
+]
+
+// 选中的地区
+const selectedRegion = ref('')
 
 // 空间名称输入框
 const spaceName = ref('')
-const emit = defineEmits(['spaceCreated']); 
+const emit = defineEmits(['spaceCreated']);
 
+// 选择类型
+const selectType = (type) => {
+    selectedType.value = type
+    // 切换类型时，如果不是企业认证，清空地区选择
+    if (type !== 'enterprise') {
+        selectedRegion.value = ''
+    }
+}
+
+// 判断是否可以创建项目
+const canCreate = computed(() => {
+    if (!spaceName.value.trim()) {
+        return false
+    }
+    // 如果是企业认证，需要选择地区
+    if (selectedType.value === 'enterprise' && !selectedRegion.value) {
+        return false
+    }
+    return true
+})
 
 // 输入框聚焦事件
 const inputFocus = () => {
@@ -45,18 +103,27 @@ const inputBlur = () => {
 
 // 进入空间按钮点击事件
 const enterSpace = () => {
-    if (!spaceName.value.trim()) {
-        console.log('请输入空间名称')
+    if (!canCreate.value) {
+        if (!spaceName.value.trim()) {
+            ElMessage.warning('请输入项目名称')
+            return
+        }
+        if (selectedType.value === 'enterprise' && !selectedRegion.value) {
+            ElMessage.warning('请选择地区')
+            return
+        }
         return
     }
     loonoolWorkspaces({
         name: spaceName.value,
+        type: selectedType.value,
+        region: selectedType.value === 'enterprise' ? selectedRegion.value : undefined
     }).then(res => {
         ElMessage.success(res.message);
         if (res.code === 200 && res.data?.id) {
             // 通过事件通知父组件切换组件并传递id
             emit('spaceCreated', res.data.id)
-            localStorage.setItem(workspaceId, res.data.id);
+            localStorage.setItem('workspaceId', res.data.id);
         }
     }).catch(err => {
         console.error(err);
@@ -109,6 +176,101 @@ const enterSpace = () => {
 }
 
 
+/* 类型选择按钮样式 */
+.type-container {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+    gap: 16px;
+}
+
+.type-btn {
+    flex: 1;
+    height: 48px;
+    background-color: rgba(107, 114, 128, 0.2);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: #6C7C93;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: rgba(107, 114, 128, 0.3);
+    }
+}
+
+.type-btn-active {
+    background-color: #fff;
+    color: #1D2129;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 地区选择容器 */
+.region-container {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+}
+
+.region-select {
+    width: 100%;
+    height: 60px;
+
+    :deep(.el-input__wrapper) {
+        height: 60px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 0 24px;
+        border: 2px solid transparent;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            background-color: rgba(255, 255, 255, 1);
+            border-color: rgba(33, 52, 222, 0.2);
+        }
+
+        &.is-focus {
+            box-shadow: 0 8px 24px rgba(33, 52, 222, 0.15);
+            background-color: rgba(255, 255, 255, 1);
+            border-color: rgba(33, 52, 222, 0.3);
+        }
+    }
+
+    :deep(.el-input__inner) {
+        font-size: 16px;
+        color: #1D2129;
+        height: 60px;
+        line-height: 60px;
+        font-weight: 500;
+
+        &::placeholder {
+            color: #9CA3AF;
+            font-weight: 400;
+        }
+    }
+
+    :deep(.el-select__caret) {
+        color: #6C7C93;
+        font-size: 18px;
+        transition: transform 0.3s ease;
+
+        &:hover {
+            color: #2134DE;
+        }
+    }
+
+    :deep(.el-select__caret.is-reverse) {
+        transform: rotate(180deg);
+    }
+}
+
 /* 新增样式 */
 .input-container {
     width: 100%;
@@ -152,7 +314,7 @@ const enterSpace = () => {
 }
 
 .enter-btn {
-    width: 80px;
+    width: 100px;
     height: 40px;
     background-color: #2134DE;
     border: none;
@@ -162,20 +324,101 @@ const enterSpace = () => {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-right: 20px;
+    margin-right: 10px;
 
-    &:hover {
+    &:hover:not(:disabled) {
         background-color: #1a2bb8;
         transform: scale(1.05);
     }
 
-    &:active {
+    &:active:not(:disabled) {
         transform: scale(0.95);
+    }
+
+    &:disabled {
+        background-color: #9CA3AF;
+        cursor: not-allowed;
+        opacity: 0.6;
     }
 }
 
 .btn-text {
     display: block;
     line-height: 1;
+}
+</style>
+
+<!-- 下拉菜单全局样式 -->
+<style lang="scss" scoped>
+::v-deep {
+    .el-select__wrapper {
+        height: 60px !important;
+        width: 100% !important;
+        border-radius: 30px;
+
+    }
+    .el-select__placeholder.is-transparent{
+        color: #9CA3AF;
+    }
+}
+
+.region-select-dropdown {
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    padding: 8px 0 !important;
+    margin-top: 8px !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    overflow: hidden !important;
+
+    .el-select__wrapper {}
+
+    .el-select-dropdown__item {
+        height: 48px !important;
+        line-height: 48px !important;
+        padding: 0 24px !important;
+        font-size: 16px !important;
+        color: #1D2129 !important;
+        transition: all 0.2s ease !important;
+        margin: 2px 8px !important;
+        border-radius: 12px !important;
+
+        &:hover {
+            background-color: rgba(33, 52, 222, 0.08) !important;
+            color: #2134DE !important;
+            font-weight: 500 !important;
+        }
+
+        &.selected {
+            background-color: rgba(33, 52, 222, 0.12) !important;
+            color: #2134DE !important;
+            font-weight: 600 !important;
+
+            &::after {
+                content: '✓';
+                float: right;
+                color: #2134DE;
+                font-weight: bold;
+            }
+        }
+
+        &.hover {
+            background-color: rgba(33, 52, 222, 0.08) !important;
+        }
+    }
+
+    .el-scrollbar__bar {
+        &.is-vertical {
+            .el-scrollbar__thumb {
+                background-color: rgba(33, 52, 222, 0.2) !important;
+                border-radius: 4px !important;
+
+                &:hover {
+                    background-color: rgba(33, 52, 222, 0.3) !important;
+                }
+            }
+        }
+    }
 }
 </style>
