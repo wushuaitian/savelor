@@ -19,7 +19,7 @@
                     :class="{ 'menu-active': activeMenu == 'auditSpace' }">
                     决策空间
                 </div> -->
-                  <div @click="navigaJump('mySpace')" class="menu-text"
+                <div @click="navigaJump('mySpace')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'mySpace' }">
                     我的空间
                 </div>
@@ -36,35 +36,37 @@
                     帮助中心
                 </div>
             </div>
-			
-			
+
+
             <!-- 登录按钮/用户头像 -->
             <div class="naviga-button flex align-center">
-                <div  v-if="isLoggedIn">
+                <div v-if="isLoggedIn">
                     <el-dropdown trigger="click" max-height="400" @visible-change="handleMsgDropdownVisibleChange">
                         <div class="iconBox" @click="msgApi">
                             <img src="/img/msg.png" alt="" class="msg-img">
                             <span v-if="hasNewMessage" class="msg-badge"></span>
                         </div>
                         <template #dropdown>
-                        <el-dropdown-menu class="msg-dropdown-menu">
-                            <template v-if="msgApiList.length === 0">
-                                <div class="msg-empty">
-                                    <div class="msg-empty-text">消息为空</div>
-                                </div>
-                            </template>
-                            
+                            <el-dropdown-menu class="msg-dropdown-menu">
+                                <template v-if="msgApiList.length === 0">
+                                    <div class="msg-empty">
+                                        <div class="msg-empty-text">消息为空</div>
+                                    </div>
+                                </template>
 
-                            <el-dropdown-item v-else class="msg-item" v-for="(item,index) in msgApiList" :key="index">
-                                    <img :src="item.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" alt="" class="msg-item-img">
-                                    <div class="msg-text">{{item.message}}</div>
-                                    <div class="msg-time">{{formatDateTime(item.createdAt)}}</div>
-                             </el-dropdown-item>
-                            
-                        </el-dropdown-menu>
+
+                                <el-dropdown-item v-else class="msg-item" v-for="(item, index) in msgApiList"
+                                    :key="index">
+                                    <img :src="item.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                                        alt="" class="msg-item-img">
+                                    <div class="msg-text">{{ item.message }}</div>
+                                    <div class="msg-time">{{ formatDateTime(item.createdAt) }}</div>
+                                </el-dropdown-item>
+
+                            </el-dropdown-menu>
                         </template>
                     </el-dropdown>
-			    </div>
+                </div>
                 <div v-if="!isLoggedIn" class="flex align-center">
                     <div class="loin m-r-10 text-bold-500" @click="loginOpen('login')">登录</div>
                     <div class="sign text-bold-500" @click="loginOpen('register')">注册</div>
@@ -114,7 +116,7 @@
                     :class="{ 'menu-active': activeMenu === 'AiTool' }">
                     检测查重
                 </div> -->
-                  <div @click="handleMobileMenuClick('mySpace')" class="mobile-menu-item"
+                <div @click="handleMobileMenuClick('mySpace')" class="mobile-menu-item"
                     :class="{ 'menu-active': activeMenu == 'mySpace' }">
                     我的空间
                 </div>
@@ -143,7 +145,8 @@
                 </div>
             </div>
         </div>
-        <component :is="component" :spaceId="currentSpaceId" @spaceCreated="handleSpaceCreated"> </component>
+        <component :is="component" ref="reviewSpaceRef" :spaceId="currentSpaceId" @spaceCreated="handleSpaceCreated">
+        </component>
     </div>
 
     <el-dialog v-model="loginVisible" :title="curretnTitle" :width="dialogWidth"
@@ -187,13 +190,11 @@ import AiTool from "./tool-ai.vue";
 import ReviewSpace from "./review-space.vue";
 // 审核空间页 ai生成
 import auditSpace from "./audit-space.vue";
-// icon
-import { Bell } from '@element-plus/icons-vue'
 
 
 import {
-    loonoolUserRegister,
-    loonoolUserLogin
+    savelorUserRegister,
+    savelorUserLogin
 } from "../../composables/login.ts";
 import {
     msgList
@@ -225,19 +226,19 @@ const initSSEMsg = () => {
 
     // SSE 服务器地址（使用 api.ts 中的 baseUrl）
     const sseUrl = `${baseUrl}loonool/notifications/stream`;
-    
+
     try {
         // 创建 EventSource 连接
         // 注意：EventSource 不支持自定义请求头，token 需要通过 URL 参数传递
         const urlWithToken = `${sseUrl}?token=${encodeURIComponent(token)}`;
         eventSource = new EventSource(urlWithToken);
-        
+
         // 监听消息事件
         eventSource.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
                 console.log('收到 SSE 消息:', data);
-                
+
                 // 处理消息数据
                 if (Array.isArray(data)) {
                     // 如果是数组，直接替换消息列表（初始加载，不显示提示）
@@ -263,7 +264,7 @@ const initSSEMsg = () => {
                 console.error('解析 SSE 消息失败:', error);
             }
         };
-        
+
         // 监听自定义事件（如果需要）
         eventSource.addEventListener('notification', (event) => {
             try {
@@ -281,12 +282,12 @@ const initSSEMsg = () => {
                 console.error('解析 SSE 通知事件失败:', error);
             }
         });
-        
+
         // 监听连接打开
         eventSource.onopen = () => {
             console.log('SSE 连接已建立');
         };
-        
+
         // 监听错误
         eventSource.onerror = (error) => {
             console.error('SSE 连接错误:', error);
@@ -314,7 +315,7 @@ const formatDateTime = (dateTime) => {
     if (!dateTime) {
         return '';
     }
-    
+
     let date;
     // 如果是时间戳（数字），转换为Date对象
     if (typeof dateTime === 'number') {
@@ -335,13 +336,13 @@ const formatDateTime = (dateTime) => {
     } else {
         return String(dateTime);
     }
-    
+
     // 检查日期是否有效
     if (isNaN(date.getTime())) {
         // 如果无法解析，返回原始值
         return String(dateTime);
     }
-    
+
     // 格式化为 YYYY-MM-DD HH:mm:ss
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -349,7 +350,7 @@ const formatDateTime = (dateTime) => {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
-    
+
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
@@ -386,9 +387,17 @@ const currentSpaceId = ref(null);
 
 // 处理空间创建成功事件
 const handleSpaceCreated = (spaceId) => {
-  currentSpaceId.value = spaceId;
-  navigaJump('auditSpace');
+    currentSpaceId.value = spaceId;
+
+    // 调用子组件的 getRegionsData 方法
+    if (component.value === ReviewSpace && typeof reviewSpaceRef.value?.getRegionsData === 'function') {
+        reviewSpaceRef.value.getRegionsData();
+    }
+    navigaJump('auditSpace');
 };
+
+// 创建一个 ref 来引用 ReviewSpace 组件
+const reviewSpaceRef = ref(null);
 
 // 用户登录状态
 const isLoggedIn = ref(false);
@@ -422,7 +431,7 @@ const toggleUserMenu = () => {
 const handleLogout = () => {
     // 断开 SSE 连接
     disconnectSSEMsg();
-    
+
     localStorage.removeItem('token');
     localStorage.removeItem('userInfo');
     isLoggedIn.value = false;
@@ -442,7 +451,7 @@ const handleLogout = () => {
 // 初始化时检查登录状态
 onMounted(() => {
     checkLoginStatus();
-    
+
     // 如果已登录，初始化 SSE 连接
     if (isLoggedIn.value) {
         initSSEMsg();
@@ -450,7 +459,7 @@ onMounted(() => {
         // 如果未登录，使用 HTTP 接口获取消息（如果有的话）
         // msgApi();
     }
-    
+
     // 点击外部关闭用户菜单
     document.addEventListener('click', (e) => {
         const target = e.target;
@@ -576,9 +585,9 @@ const loginButton = async () => {
         if (curretnDialog.value == 'login') {
             // 登录逻辑
             console.log("执行登录");
-            loonoolUserLogin({
+            savelorUserLogin({
                 email: formLabelAlign.email,
-                passwordHash: formLabelAlign.password,
+                password: formLabelAlign.password,
             }).then(res => {
                 console.log(res, 'resresresresres');
                 // 保存 token
@@ -594,10 +603,15 @@ const loginButton = async () => {
                 localStorage.setItem('userInfo', JSON.stringify(userData));
                 userInfo.value = userData;
                 isLoggedIn.value = true;
-                
+
                 // 登录成功后初始化 SSE 连接
                 initSSEMsg();
-                
+
+                // 如果当前是 ReviewSpace 组件，则获取地区数据
+                if (component.value === ReviewSpace && typeof reviewSpaceRef.value?.getRegionsData === 'function') {
+                    reviewSpaceRef.value.getRegionsData();
+                }
+
                 // 显示返回的提示语
                 const message = res?.message || res?.msg || res?.data?.message || '登录成功';
                 ElMessage.success(message);
@@ -610,9 +624,9 @@ const loginButton = async () => {
             })
         } else {
             // 注册逻辑
-            loonoolUserRegister({
+            savelorUserRegister({
                 email: formLabelAlign.email,
-                passwordHash: formLabelAlign.password,
+                password: formLabelAlign.password,
             }).then(res => {
                 console.log(res, 'resresresresres');
                 // 显示返回的提示语
@@ -680,7 +694,7 @@ const navigaJump = (event) => {
             break;
 
         // 我的空间
-         case 'mySpace':
+        case 'mySpace':
             component.value = mySpace
             activeMenu.value = 'mySpace'
             break;
@@ -1224,6 +1238,7 @@ body {
     background-image: url('/img/login-bg.png');
     background-size: cover;
     padding: 0;
+
     .el-dialog {
         border-radius: 16px;
         overflow: hidden;
@@ -1423,77 +1438,85 @@ body {
         }
     }
 }
+
 .example-showcase .el-dropdown-link {
-  cursor: pointer;
-  color: var(--el-color-primary);
-  display: flex;
-  align-items: center;
+    cursor: pointer;
+    color: var(--el-color-primary);
+    display: flex;
+    align-items: center;
 }
-	
-.iconBox{
-	width: 44px;
-	height: 44px;
-	background: #E9EBFC;
-	display:flex;
-	justify-content: center;
-	align-items: center;
-    border-radius:50%;
-    margin-right:20px;
-    margin-top:-4px;
+
+.iconBox {
+    width: 44px;
+    height: 44px;
+    background: #E9EBFC;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin-right: 20px;
+    margin-top: -4px;
     position: relative;
     cursor: pointer;
 }
-.msg-img{
-	width: 20px;
-	height: 20px;
+
+.msg-img {
+    width: 20px;
+    height: 20px;
 }
-.msg-badge{
-	position: absolute;
-	top: 4px;
-	right: 4px;
-	width: 8px;
-	height: 8px;
-	background-color: #FF4444;
-	border-radius: 50%;
-	border: 1px solid #fff;
-	z-index: 10;
-	animation: pulse 2s infinite;
+
+.msg-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background-color: #FF4444;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    z-index: 10;
+    animation: pulse 2s infinite;
 }
+
 @keyframes pulse {
-	0% {
-		transform: scale(1);
-		opacity: 1;
-	}
-	50% {
-		transform: scale(1.2);
-		opacity: 0.8;
-	}
-	100% {
-		transform: scale(1);
-		opacity: 1;
-	}
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
+
 .msg-dropdown-menu {
     width: 400px !important;
 }
 
-.msg-item{
+.msg-item {
     width: 400px;
     height: 44px;
     display: flex;
     align-items: center;
     padding: 0 16px;
     box-sizing: border-box;
-    
-    .msg-item-img{
-        width:26px;
-        height:26px;
-        border-radius:50%;
-        margin-right:8px;
+
+    .msg-item-img {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        margin-right: 8px;
         flex-shrink: 0;
     }
-    .msg-text{
-        flex:1;
+
+    .msg-text {
+        flex: 1;
         height: 20px;
         font-family: PingFangSC, PingFang SC;
         font-weight: 400;
@@ -1502,12 +1525,13 @@ body {
         line-height: 20px;
         text-align: left;
         font-style: normal;
-        overflow:hidden;
+        overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         margin-right: 12px;
     }
-    .msg-time{
+
+    .msg-time {
         flex-shrink: 0;
         height: 17px;
         font-family: PingFangSC, PingFang SC;
@@ -1521,18 +1545,18 @@ body {
     }
 }
 
-.el-dropdown-menu__item:not(.is-disabled):hover{
+.el-dropdown-menu__item:not(.is-disabled):hover {
     background-color: #F7F8FA !important;
     color: #85909C;
     border-radius: 8px;
 }
 
-.msg-empty{
+.msg-empty {
     padding: 40px 20px;
     text-align: center;
     min-width: 200px;
-    
-    .msg-empty-text{
+
+    .msg-empty-text {
         font-size: 14px;
         color: #85909C;
         line-height: 20px;

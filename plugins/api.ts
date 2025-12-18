@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-export const baseUrl = 'http://192.168.1.198:8080/';// 根据实际情况修改API地址
+export const baseUrl = 'http://192.168.1.195:8080/';// 根据实际情况修改API地址
 // 基本配置
 const instance = axios.create({
   baseURL: baseUrl, 

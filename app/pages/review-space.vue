@@ -38,10 +38,10 @@
 </template>
 
 <script setup>
-import { loonoolWorkspaces } from "../../composables/login";
+import { loonoolWorkspaces, savelorWorkspacesGetStates } from "../../composables/login";
 import { ElMessage } from 'element-plus'
 
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 // 项目类型
 const projectTypes = [
@@ -53,15 +53,22 @@ const projectTypes = [
 // 选中的类型
 const selectedType = ref('enterprise')
 
+// 获取地区选项
+const getRegionsData = () => {
+    savelorWorkspacesGetStates().then(res => {
+        if (res.code === 200) {
+        } else {
+            reject(res.message)
+            ElMessage.success(res.message)
+
+        }
+    }).catch(err => {
+        ElMessage.error(res.message)
+    })
+}
+
 // 地区选项
-const regions = [
-    { label: '美国', value: 'us' },
-    { label: '中国', value: 'cn' },
-    { label: '欧洲', value: 'eu' },
-    { label: '日本', value: 'jp' },
-    { label: '韩国', value: 'kr' },
-    { label: '其他', value: 'other' }
-]
+const regions = []
 
 // 选中的地区
 const selectedRegion = ref('')
@@ -136,6 +143,12 @@ const enterSpace = () => {
     // 这里可以添加进入空间的逻辑
 }
 
+onMounted(() => {
+})
+
+defineExpose({
+    getRegionsData
+})
 </script>
 
 <style scoped lang="scss">
@@ -357,7 +370,8 @@ const enterSpace = () => {
         border-radius: 30px;
 
     }
-    .el-select__placeholder.is-transparent{
+
+    .el-select__placeholder.is-transparent {
         color: #9CA3AF;
     }
 }

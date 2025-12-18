@@ -9,9 +9,9 @@ interface RequestParams {
 /**
  * 注册
  */
-export function loonoolUserRegister(data: RequestParams) {
+export function savelorUserRegister(data: RequestParams) {
     return request({
-        url: '/loonool/user/register',
+        url: '/savelor/users/register',
         method: 'post',
         data,
     })
@@ -21,9 +21,9 @@ export function loonoolUserRegister(data: RequestParams) {
  * 登录
  */
 
-export function loonoolUserLogin(data: RequestParams) {
+export function savelorUserLogin(data: RequestParams) {
     return request({
-        url: '/loonool/user/login',
+        url: '/savelor/users/login',
         method: 'post',
         data,
     })
@@ -167,5 +167,18 @@ export function tasksMembersChangerRole(data: RequestParams) {
         url: `/loonool/workspaces/workspaces/change-role`,
         method: 'post',
         data,
+    })
+}
+
+
+
+
+// 新
+// 获取美国州列表（企业认证地区下拉）
+export function savelorWorkspacesGetStates(data: RequestParams) {
+    return request({
+        url: `/savelor/projects/regions/us/states`,
+        method: 'get',
+        params: data,
     })
 }
