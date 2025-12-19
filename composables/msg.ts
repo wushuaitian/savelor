@@ -29,3 +29,10 @@ export function userUpdate(data: RequestParams) {
         data,
     })
 }
+export function projects(data: RequestParams) {
+    return request({
+        url: `/savelor/projects/list/page`,
+        method: 'get',
+        params: data,
+    })
+}
