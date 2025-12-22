@@ -36,3 +36,12 @@ export function projects(data: RequestParams) {
         params: data,
     })
 }
+
+// 获取我的空间列表（搜索+分页）
+export function spaces(data: RequestParams) {
+    return request({
+        url: `/savelor/spaces`,
+        method: 'get',
+        params: data,
+    })
+}
