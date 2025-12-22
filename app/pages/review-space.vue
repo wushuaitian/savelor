@@ -6,23 +6,6 @@
             <div class="introduc-title text-bold-600">让复杂流程变简单执行</div>
             <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">从商标注册到专利申请，从公司设立到资质认证</div>
 
-            <!-- 类型选择按钮 -->
-            <div class="type-container flex align-center justify-center p-t-50">
-                <div v-for="type in projectTypes" :key="type.value" class="type-btn"
-                    :class="{ 'type-btn-active': selectedType === type.value }" @click="selectType(type.value)">
-                    {{ type.label }}
-                </div>
-            </div>
-
-            <!-- 地区下拉框（仅企业认证时显示） -->
-            <div class="region-container flex align-center justify-center p-t-30" v-if="selectedType === 'enterprise'">
-                <el-select v-model="selectedRegion" placeholder="请选择地区" class="region-select"
-                    popper-class="region-select-dropdown">
-                    <el-option v-for="region in regions" :key="region.value" :label="region.label"
-                        :value="region.value" />
-                </el-select>
-            </div>
-
             <!-- 输入框和按钮区域 -->
             <div class="input-container flex align-center justify-center p-t-30">
                 <div class="input-wrapper flex align-center">
@@ -43,56 +26,14 @@ import { ElMessage } from 'element-plus'
 
 import { ref, computed, onMounted } from 'vue';
 
-// 项目类型
-const projectTypes = [
-    { label: '企业认证', value: 'enterprise' },
-    { label: '商标注册', value: 'trademark' },
-    { label: '专利申请', value: 'patent' }
-]
-
-// 选中的类型
-const selectedType = ref('enterprise')
-
-// 获取地区选项
-const getRegionsData = () => {
-    savelorWorkspacesGetStates().then(res => {
-        if (res.code === 200) {
-        } else {
-            reject(res.message)
-            ElMessage.success(res.message)
-
-        }
-    }).catch(err => {
-        ElMessage.error(res.message)
-    })
-}
-
-// 地区选项
-const regions = []
-
-// 选中的地区
-const selectedRegion = ref('')
-
 // 空间名称输入框
 const spaceName = ref('')
 const emit = defineEmits(['spaceCreated']);
 
-// 选择类型
-const selectType = (type) => {
-    selectedType.value = type
-    // 切换类型时，如果不是企业认证，清空地区选择
-    if (type !== 'enterprise') {
-        selectedRegion.value = ''
-    }
-}
 
 // 判断是否可以创建项目
 const canCreate = computed(() => {
     if (!spaceName.value.trim()) {
-        return false
-    }
-    // 如果是企业认证，需要选择地区
-    if (selectedType.value === 'enterprise' && !selectedRegion.value) {
         return false
     }
     return true
@@ -115,16 +56,10 @@ const enterSpace = () => {
             ElMessage.warning('请输入项目名称')
             return
         }
-        if (selectedType.value === 'enterprise' && !selectedRegion.value) {
-            ElMessage.warning('请选择地区')
-            return
-        }
         return
     }
     loonoolWorkspaces({
         name: spaceName.value,
-        type: selectedType.value,
-        region: selectedType.value === 'enterprise' ? selectedRegion.value : undefined
     }).then(res => {
         ElMessage.success(res.message);
         if (res.code === 200 && res.data?.id) {
@@ -144,10 +79,6 @@ const enterSpace = () => {
 }
 
 onMounted(() => {
-})
-
-defineExpose({
-    getRegionsData
 })
 </script>
 

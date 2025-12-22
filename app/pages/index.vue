@@ -388,11 +388,6 @@ const currentSpaceId = ref(null);
 // 处理空间创建成功事件
 const handleSpaceCreated = (spaceId) => {
     currentSpaceId.value = spaceId;
-
-    // 调用子组件的 getRegionsData 方法
-    if (component.value === ReviewSpace && typeof reviewSpaceRef.value?.getRegionsData === 'function') {
-        reviewSpaceRef.value.getRegionsData();
-    }
     navigaJump('auditSpace');
 };
 
@@ -606,11 +601,6 @@ const loginButton = async () => {
 
                 // 登录成功后初始化 SSE 连接
                 initSSEMsg();
-
-                // 如果当前是 ReviewSpace 组件，则获取地区数据
-                if (component.value === ReviewSpace && typeof reviewSpaceRef.value?.getRegionsData === 'function') {
-                    reviewSpaceRef.value.getRegionsData();
-                }
 
                 // 显示返回的提示语
                 const message = res?.message || res?.msg || res?.data?.message || '登录成功';
