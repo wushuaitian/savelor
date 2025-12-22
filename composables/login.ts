@@ -6,28 +6,7 @@ interface RequestParams {
     [key: string]: any
 }
 
-/**
- * 注册
- */
-export function savelorUserRegister(data: RequestParams) {
-    return request({
-        url: '/savelor/users/register',
-        method: 'post',
-        data,
-    })
-}
 
-/**
- * 登录
- */
-
-export function savelorUserLogin(data: RequestParams) {
-    return request({
-        url: '/savelor/users/login',
-        method: 'post',
-        data,
-    })
-}
 
 /**
  * 获取用户信息
@@ -61,9 +40,9 @@ export function loonoolUploadImage(data: RequestParams) {
         url: `/loonool/workspaces/tasks/upload-image`,
         method: 'post',
         data,
-         headers: {
+        headers: {
             'Content-Type': 'multipart/form-data'
-        }   
+        }
     })
 }
 
@@ -174,11 +153,35 @@ export function tasksMembersChangerRole(data: RequestParams) {
 
 
 // 新
-// 获取美国州列表（企业认证地区下拉）
-export function savelorWorkspacesGetStates(data: RequestParams) {
+
+/**
+ * 注册
+ */
+export function savelorUserRegister(data: RequestParams) {
     return request({
-        url: `/savelor/projects/regions/us/states`,
-        method: 'get',
-        params: data,
+        url: '/savelor/users/register',
+        method: 'post',
+        data,
+    })
+}
+
+/**
+ * 登录
+ */
+
+export function savelorUserLogin(data: RequestParams) {
+    return request({
+        url: '/savelor/users/login',
+        method: 'post',
+        data,
+    })
+}
+
+// 创建空间
+export function savelorSpaces(data: RequestParams) {
+    return request({
+        url: `/savelor/spaces`,
+        method: 'post',
+        data,
     })
 }

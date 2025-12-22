@@ -446,7 +446,7 @@ onMounted(() => {
 
     // 如果已登录，初始化 SSE 连接
     if (isLoggedIn.value) {
-        initSSEMsg();
+        // initSSEMsg();
     } else {
         // 如果未登录，使用 HTTP 接口获取消息（如果有的话）
         // msgApi();
@@ -597,7 +597,7 @@ const loginButton = async () => {
                 isLoggedIn.value = true;
 
                 // 登录成功后初始化 SSE 连接
-                initSSEMsg();
+                // initSSEMsg();
 
                 // 显示返回的提示语
                 const message = res?.message || res?.msg || res?.data?.message || '登录成功';

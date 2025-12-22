@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { loonoolWorkspaces, savelorWorkspacesGetStates } from "../../composables/login";
+import { loonoolWorkspaces, savelorSpaces } from "../../composables/login";
 import { ElMessage } from 'element-plus'
 
 import { ref, computed, onMounted } from 'vue';
@@ -58,8 +58,9 @@ const enterSpace = () => {
         }
         return
     }
-    loonoolWorkspaces({
+    savelorSpaces({
         name: spaceName.value,
+        description: ''
     }).then(res => {
         ElMessage.success(res.message);
         if (res.code === 200 && res.data?.id) {
