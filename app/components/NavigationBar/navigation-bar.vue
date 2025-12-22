@@ -9,7 +9,6 @@
             <div class="naviga-menu flex align-center">
                 <NuxtLink class="menu-text" to="/app/pages/index.vue">首页</NuxtLink>
                 <NuxtLink to="/app/pages/plagiarism.vue" class="menu-text">检测查重</NuxtLink>
-                <NuxtLink to="/app/pages/blog/historical-results.vue" class="menu-text">历史结果</NuxtLink>
                 <NuxtLink to="/app/pages/blog/learn-more.vue" class="menu-text">了解更多</NuxtLink>
 
                 <!-- <div @click="navigaJump('home')" class="menu-text">首页</div>

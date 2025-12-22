@@ -19,6 +19,10 @@
                     :class="{ 'menu-active': activeMenu == 'auditSpace' }">
                     决策空间
                 </div> -->
+                <div @click="navigaJump('companyMaterial')" class="menu-text"
+                    :class="{ 'menu-active': activeMenu == 'companyMaterial' }">
+                    企业材料
+                </div>
                 <div @click="navigaJump('mySpace')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'mySpace' }">
                     我的空间
@@ -26,10 +30,6 @@
                 <!-- <div @click="navigaJump('AiTool')" class="menu-text"
                     :class="{ 'menu-active': activeMenu === 'AiTool' }">
                     检测查重
-                </div> -->
-                <!-- <div @click="navigaJump('historical')" class="menu-text"
-                    :class="{ 'menu-active': activeMenu == 'historical' }">
-                    历史结果
                 </div> -->
                 <div @click="navigaJump('problem')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'problem' }">
@@ -120,10 +120,6 @@
                     :class="{ 'menu-active': activeMenu == 'mySpace' }">
                     我的空间
                 </div>
-                <!-- <div @click="handleMobileMenuClick('historical')" class="mobile-menu-item"
-                    :class="{ 'menu-active': activeMenu == 'historical' }">
-                    历史结果
-                </div> -->
                 <div @click="handleMobileMenuClick('problem')" class="mobile-menu-item"
                     :class="{ 'menu-active': activeMenu == 'problem' }">
                     了解更多
@@ -176,7 +172,6 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from "vue";
 import Home from "./home-page.vue";
 import Plagiarism from "./plagiarism.vue";
-import Historical from "./historical-results.vue";
 import Article from "./blog/index.vue";
 import problem from "./problem.vue";
 // 我的工具
@@ -190,6 +185,8 @@ import AiTool from "./tool-ai.vue";
 import ReviewSpace from "./review-space.vue";
 // 审核空间页 ai生成
 import auditSpace from "./audit-space.vue";
+// 企业材料
+import companyMaterial from "./corporate-materials.vue";
 
 
 import {
@@ -197,7 +194,7 @@ import {
     savelorUserLogin
 } from "../../composables/login.ts";
 import {
-    msgList 
+    msgList
 } from "../../composables/msg.ts";
 import { baseUrl } from "../../plugins/api.ts";
 import { ElMessage } from 'element-plus';
@@ -388,7 +385,7 @@ const currentSpaceId = ref(null);
 // 处理空间创建成功事件
 const handleSpaceCreated = (spaceId) => {
     currentSpaceId.value = spaceId;
-    navigaJump('auditSpace');
+    navigaJump('companyMaterial');
 };
 
 // 创建一个 ref 来引用 ReviewSpace 组件
@@ -649,11 +646,6 @@ const navigaJump = (event) => {
             activeMenu.value = 'plagiarism'
 
             break;
-        case 'historical':
-            component.value = Historical
-            activeMenu.value = 'historical'
-
-            break;
         case 'article':
             component.value = Article
             activeMenu.value = 'article'
@@ -693,6 +685,11 @@ const navigaJump = (event) => {
             component.value = userProfile
             activeMenu.value = 'userProfile'
             userMenuOpen.value = false
+            break;
+        // 企业材料
+        case 'companyMaterial':
+            component.value = companyMaterial
+            activeMenu.value = 'companyMaterial'
             break;
         default:
             break;
