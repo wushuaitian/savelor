@@ -178,9 +178,11 @@ $color-text-light: #85909C;
   font-size: 14px;
   color: $color-text;
   padding: 0 10px;
+  font-family: "PingFangSC PingFang SC";
   
   &::placeholder {
     color: $color-text-light;
+    font-family: "PingFangSC PingFang SC";
   }
 }
 
@@ -198,6 +200,7 @@ $color-text-light: #85909C;
   justify-content: center;
   transition: all 0.3s ease;
   margin-left: 10px;
+  font-family: "PingFangSC PingFang SC";
   
   &:hover {
     background: #1a2bc5;
