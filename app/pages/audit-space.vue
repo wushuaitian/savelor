@@ -907,6 +907,6 @@ const formatDate = (dateString) => {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use "../../public/auditSpace.scss";
 </style>
