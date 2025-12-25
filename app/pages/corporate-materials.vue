@@ -86,18 +86,65 @@
             </div>
          </div>
          <div class="center-column flex flex-column">
-            <div v-html="aaa"></div>
+            <div class="text-18 text-bold-500 m-b-20">
+               关键宣称预览
+            </div>
+            <div class="text-center" v-html="aaa"></div>
          </div>
          <div class="right-column flex flex-column">
-            <div class="right-top"></div>
-            <div class="right-bottom"></div>
+            <div class="right-top p-20 b-r-8">
+               <div class="right-top-title text-18 text-bold-500 m-b-20">
+                  基础信息
+               </div>
+               <el-form :model="informationData" class="demo-form-inline" label-position="top">
+                  <el-form-item label="企业名称">
+                     <el-input v-model="informationData.name" placeholder="智联感激科技有限公司" />
+                  </el-form-item>
+                  <el-form-item label="注册地-法律主体">
+                     <el-input v-model="informationData.address" placeholder="浙江省-杭州市 智联感激科技有限公司" />
+                  </el-form-item>
+               </el-form>
+            </div>
+            <div class="right-bottom">
+               <div class="text-18 text-bold-500 m-b-20">
+                  提取的关键宣称
+               </div>
+               <!-- 验证切换 -->
+               <div class="tap-list flex align-center m-b-20">
+                  <div class=" text-bold-500 m-r-30" v-for="(item, index) in declareTap" :key="index"
+                     @click="rightTapClick(item)"
+                     :class="item.value == declareTapCurrent ? 'tap-item-active' : 'tap-item'">
+                     {{ item.label }}
+                     <span v-show="item.value != 'all'">({{ item.number }})</span>
+                  </div>
+               </div>
+               <!-- 宣称列表 -->
+               <div class="claim-list">
+                  <div class="claim-item" v-for="(item, index) in filteredClaimList" :key="item.id">
+                     <div class="claim-content">
+                        <div class="claim-number">{{ index + 1 }}.</div>
+                        <div class="claim-info">
+                           <div class="claim-title">{{ item.title }}</div>
+                           <div class="claim-source">来源: {{ item.source }}</div>
+                        </div>
+                        <div class="claim-status" :class="item.status === 'verified' ? 'status-verified' : 'status-unverified'">
+                           {{ item.status === 'verified' ? '已验证' : '未验证' }}
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <!-- 下载验证报告按钮 -->
+               <div class="download-report-btn" @click="downloadReport">
+                  下载验证报告
+               </div>
+            </div>
          </div>
       </div>
    </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, Delete, Plus, Folder, Download, ArrowDown, ArrowUp } from '@element-plus/icons-vue'
 
@@ -253,6 +300,129 @@ const downloadFile = (data) => {
 const downloadAll = (data) => {
    console.log('下载文件夹所有文件:', data)
    ElMessage.success(`正在下载 ${data.label} 文件夹中的所有文件`)
+}
+
+
+// 基础信息
+// 基础信息表单
+const informationData = ref({
+   name: '',
+   address: '',
+})
+
+// 宣称列表数据
+const claimList = ref([
+   {
+      id: 1,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'verified'
+   },
+   {
+      id: 2,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'verified'
+   },
+   {
+      id: 3,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'unverified'
+   },
+   {
+      id: 4,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'verified'
+   },
+   {
+      id: 5,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'unverified'
+   },
+   {
+      id: 6,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'verified'
+   },
+   {
+      id: 7,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'verified'
+   },
+   {
+      id: 8,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'unverified'
+   },
+   {
+      id: 9,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'verified'
+   },
+   {
+      id: 10,
+      title: '宣智慧城市物联网感知平台 (2022-2023合同额...',
+      source: '公司官网, 第三方网站',
+      status: 'unverified'
+   }
+])
+
+// 提取的关键宣称 - 使用计算属性动态更新数量
+const declareTap = computed(() => {
+   const verifiedCount = claimList.value.filter(item => item.status === 'verified').length
+   const unverifiedCount = claimList.value.filter(item => item.status === 'unverified').length
+   
+   return [
+      {
+         label: '全部',
+         value: 'all',
+         number: 0,
+      },
+      {
+         label: '已验证',
+         value: 'already',
+         number: verifiedCount,
+      },
+      {
+         label: '未验证',
+         value: 'notYet',
+         number: unverifiedCount,
+      },
+   ]
+})
+
+// 宣称tap当前选择
+const declareTapCurrent = ref('all')
+
+// 过滤后的宣称列表
+const filteredClaimList = computed(() => {
+   if (declareTapCurrent.value === 'all') {
+      return claimList.value
+   } else if (declareTapCurrent.value === 'already') {
+      return claimList.value.filter(item => item.status === 'verified')
+   } else if (declareTapCurrent.value === 'notYet') {
+      return claimList.value.filter(item => item.status === 'unverified')
+   }
+   return claimList.value
+})
+
+// 宣称tap切换
+const rightTapClick = (val) => {
+   console.log(val)
+   declareTapCurrent.value = val.value
+}
+
+// 下载验证报告
+const downloadReport = () => {
+   ElMessage.success('正在下载验证报告...')
+   // TODO: 实现下载逻辑
 }
 </script>
 
@@ -593,7 +763,6 @@ const downloadAll = (data) => {
 .center-column {
    flex: 1;
    gap: 20px;
-   background-color: azure;
    overflow-y: auto;
 }
 
@@ -602,17 +771,142 @@ const downloadAll = (data) => {
    gap: 20px;
    overflow-y: auto;
    padding-right: 10px;
-   background-color: azure;
 
    .right-top {
       flex: 0.3;
-      border: 1px solid red;
+      background-color: #F7F8FA;
+
+      :deep(.el-form-item__label) {
+         color: #85909C;
+      }
+
+      :deep(.el-input__wrapper) {
+         box-shadow: none !important;
+         border-radius: 8px;
+         height: 40px;
+      }
    }
 
    .right-bottom {
       flex: 0.7;
-      border: 1px solid yellow;
+      display: flex;
+      flex-direction: column;
 
+      .tap-list {
+         margin-bottom: 20px;
+
+         .tap-item {
+            color: #85909C;
+            font-size: 14px;
+            cursor: pointer;
+         }
+
+         .tap-item-active {
+            font-size: 16px;
+            color: #2134DE;
+            position: relative;
+
+            &::after {
+               content: '';
+               position: absolute;
+               bottom: -10px;
+               left: 50%;
+               transform: translateX(-50%);
+               width: 50%; // 下划线长度，可以自定义修改
+               height: 5px;
+               background-color: #2134DE;
+               border-radius: 16px; // 下划线圆角，可以自定义修改
+            }
+         }
+      }
+
+      .claim-list {
+         height: 500px;
+         overflow-y: auto;
+         margin-bottom: 20px;
+
+         .claim-item {
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            transition: all 0.3s;
+
+            &:hover {
+               background-color: #F7F8FA;
+            }
+
+            .claim-content {
+               display: flex;
+               align-items: flex-start;
+               gap: 12px;
+
+               .claim-number {
+                  font-size: 14px;
+                  color: #333333;
+                  font-weight: 500;
+                  flex-shrink: 0;
+                  line-height: 1.5;
+               }
+
+               .claim-info {
+                  flex: 1;
+                  min-width: 0;
+
+                  .claim-title {
+                     font-size: 14px;
+                     color: #333333;
+                     font-weight: 500;
+                     margin-bottom: 8px;
+                     line-height: 1.5;
+                     overflow: hidden;
+                     text-overflow: ellipsis;
+                     white-space: nowrap;
+                  }
+
+                  .claim-source {
+                     font-size: 12px;
+                     color: #85909C;
+                     line-height: 1.5;
+                  }
+               }
+
+               .claim-status {
+                  flex-shrink: 0;
+                  font-size: 14px;
+                  font-weight: 500;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+
+                  &.status-verified {
+                     color: #52C41A;
+                  }
+
+                  &.status-unverified {
+                     color: #FF9800;
+                  }
+               }
+            }
+         }
+      }
+
+      .download-report-btn {
+         width: 100%;
+         text-align: center;
+         background-color: #E9EBFC;
+         color: #2134DE;
+         padding: 12px 0;
+         border-radius: 8px;
+         font-size: 14px;
+         font-weight: 500;
+         cursor: pointer;
+         transition: all 0.3s;
+         flex-shrink: 0;
+
+         &:hover {
+            background-color: #D6DAF8;
+         }
+      }
    }
 }
 </style>
