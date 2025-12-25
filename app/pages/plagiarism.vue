@@ -94,7 +94,6 @@
           <div class="flex-column flex h-p-100" v-if="analysisStatus == 'progress'">
             <div class="text-bold-500 text-26 text-black">正在分析您的文件...</div>
             <div class="text-bold-400 text-14 text-85909C m-t-20 flex align-center">
-              <img src="/img/load.png" alt="" class="img-size">
               <div>处理图片检测重复率</div>
             </div>
             <div class="text-bold-400 text-14 text-85909C m-t-20 p-l-20">数据库覆盖广：收录千万级至亿级图片资源，同步更新学术期刊、公开文献等数据源，比对无盲区。
@@ -262,7 +261,6 @@ const reportData = ref([
   color: #2134DE;
 
   .head-complete {
-    background-image: url('../../public/img/flower.png');
     background-size: 27% 86%;
     /* 或者使用 'contain' */
     background-position: center center;
