@@ -77,8 +77,17 @@
                         class="h-40 w-40">
 
                     <div v-if="userMenuOpen" class="user-menu">
-                        <div class="user-menu-item" @click="navigaJump('userProfile')">查看信息</div>
-                        <div class="user-menu-item" @click="handleLogout">退出登录</div>
+                        <div class="user-menu-header">
+                            <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                                class="user-menu-avatar" alt="用户头像">
+                        </div>
+                        <div class="user-info-section">
+                            <div class="info-title">电子邮箱</div>
+                            <div class="info-input email-input">{{ userInfo.email || '' }}</div>
+                            <div class="info-title" style="margin-top: 18px;">用户名</div>
+                            <div class="info-input username-input">{{ userInfo.username || '' }}</div>
+                        </div>
+                        <div class="logout-button" @click="handleLogout">退出登录</div>
                     </div>
                 </div>
             </div>
@@ -805,27 +814,91 @@ body {
                 position: absolute;
                 top: calc(100% + 8px);
                 right: 0;
-                background: #fff;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                min-width: 120px;
+                width: 454px;
+                background: #FFFFFF;
+                box-shadow: 0px 2px 16px 0px rgba(0,0,0,0.19);
+                border-radius: 12px;
                 z-index: 1000;
                 overflow: hidden;
 
-                .user-menu-item {
-                    padding: 12px 16px;
-                    font-size: 14px;
-                    color: #1D2530;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
+                .user-menu-header {
+                    width: 454px;
+                    height: 182px;
+                    background: linear-gradient( 180deg, #DCE0FF 0%, #FFFFFF 100%);
+                    border-radius: 12px 12px 0px 0px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
 
-                    &:hover {
-                        background-color: #F3F4F6;
-                        color: #2134DE;
+                    .user-menu-avatar {
+                        width: 100px;
+                        height: 100px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    }
+                }
+
+                .user-info-section {
+                    padding: 16px 16px 0px 16px;
+                    width: 394px;
+                    margin: 0 auto;
+
+                    .info-title {
+                        height: 20px;
+                        font-family: PingFangSC, PingFang SC;
+                        font-weight: 400;
+                        font-size: 14px;
+                        color: #4E5969;
+                        line-height: 20px;
+                        text-align: left;
+                        font-style: normal;
+                        margin-bottom: 10px;
                     }
 
-                    &:active {
-                        background-color: #E5E7EB;
+                    .info-input {
+                        width: 394px;
+                        height: 48px;
+                        background: #F2F3F5;
+                        border-radius: 8px;
+                        font-family: PingFangSC, PingFang SC;
+                        font-weight: 400;
+                        font-size: 16px;
+                        color: #1D2129;
+                        line-height: 22px;
+                        text-align: left;
+                        font-style: normal;
+                        display: flex;
+                        align-items: center;
+                        padding: 0 16px;
+                        box-sizing: border-box;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                }
+
+                .logout-button {
+                    width: 394px;
+                    height: 56px;
+                    background: #2134DE;
+                    border-radius: 8px;
+                    font-family: PingFangSC, PingFang SC;
+                    font-weight: 500;
+                    font-size: 16px;
+                    color: #FFFFFF;
+                    line-height: 22px;
+                    font-style: normal;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    margin: 36px auto;
+
+                    &:hover {
+                        background: #1a2bc5;
+                        transform: translateY(-1px);
                     }
                 }
             }
