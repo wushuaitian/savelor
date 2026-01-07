@@ -176,6 +176,43 @@ export function savelorUserLogin(data: RequestParams) {
         data,
     })
 }
+/**
+ * 获取美国州列表（50州 + DC）
+ */
+export function savelorMetaUsStates(data: RequestParams) {
+    return request({
+        url: `/savelor/meta/us-states`,
+        method: 'get',
+        params: data,
+    })
+}
+
+/**
+ * 
+ * Step1：创建报告草稿
+ * @param data 
+ * @returns 
+ */
+export function savelorReportsDraft(data: RequestParams) {
+    return request({
+        url: '/savelor/reports/draft',
+        method: 'post',
+        data,
+    })
+}
+/**
+ * 
+ * Step2：选择报告类型并发起生成（第二页）
+ * @param data 
+ * @returns 
+ */
+export function savelorReportsGenerate(data: RequestParams) {
+    return request({
+        url: '/savelor/reports/generate',
+        method: 'post',
+        data,
+    })
+}
 
 // 创建空间
 export function savelorSpaces(data: RequestParams) {

@@ -13,16 +13,16 @@
                 </div> -->
                 <div @click="navigaJump('ReviewSpace')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
-                    创建空间
+                    生成报告
                 </div>
                 <!-- <div @click="navigaJump('auditSpace')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'auditSpace' }">
                     决策空间
                 </div> -->
-                <div @click="navigaJump('companyMaterial')" class="menu-text"
+                <!-- <div @click="navigaJump('companyMaterial')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'companyMaterial' }">
                     企业材料
-                </div>
+                </div> -->
                 <div @click="navigaJump('mySpace')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'mySpace' }">
                     我的空间
@@ -115,7 +115,7 @@
                 </div> -->
                 <div @click="handleMobileMenuClick('ReviewSpace')" class="mobile-menu-item"
                     :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
-                    创建空间
+                    生成报告
                 </div>
                 <!-- <div @click="handleMobileMenuClick('auditSpace')" class="mobile-menu-item"
                     :class="{ 'menu-active': activeMenu == 'auditSpace' }">
@@ -578,6 +578,7 @@ const rules = reactive({
 
 
 
+// 确定登录注册按钮
 const loginButton = async () => {
     try {
         // 执行表单验证
@@ -591,27 +592,27 @@ const loginButton = async () => {
                 password: formLabelAlign.password,
             }).then(res => {
                 console.log(res, 'resresresresres');
-                // 保存 token
-                if (res?.token || res?.data?.token) {
-                    localStorage.setItem('token', res?.token || res?.data?.token);
+                if (res.code == 200) {
+                    localStorage.setItem('token', res.data.token);
+                    // 保存用户信息
+                    const userData = {
+                        email: formLabelAlign.email,
+                        avatar: res.data.user.avatarUrl,
+                        username: res.data.user.username
+                    };
+                    userInfo.value = userData;
+                    isLoggedIn.value = true;
+
+                    // 登录成功后初始化 SSE 连接
+                    // initSSEMsg();
+
+                    // 显示返回的提示语
+
+                    loginVisible.value = false;
                 }
-                // 保存用户信息
-                const userData = {
-                    email: formLabelAlign.email,
-                    avatar: res?.avatar || res?.data?.avatar || '',
-                    username: res?.username || res?.data?.username || res?.email || res?.data?.email || formLabelAlign.email
-                };
-                localStorage.setItem('userInfo', JSON.stringify(userData));
-                userInfo.value = userData;
-                isLoggedIn.value = true;
-
-                // 登录成功后初始化 SSE 连接
-                // initSSEMsg();
-
-                // 显示返回的提示语
-                const message = res?.message || res?.msg || res?.data?.message || '登录成功';
+                const message = res.message;
                 ElMessage.success(message);
-                loginVisible.value = false;
+
             }).catch(err => {
                 console.error(err);
                 // 显示错误提示
@@ -624,11 +625,12 @@ const loginButton = async () => {
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
             }).then(res => {
-                console.log(res, 'resresresresres');
                 // 显示返回的提示语
-                const message = res?.message || res?.msg || res?.data?.message || '注册成功';
+                if (res.code == 200) {
+                    loginVisible.value = false;
+                }
+                const message = res.message;
                 ElMessage.success(message);
-                loginVisible.value = false;
             }).catch(err => {
                 console.error(err);
                 // 显示错误提示
@@ -816,7 +818,7 @@ body {
                 right: 0;
                 width: 454px;
                 background: #FFFFFF;
-                box-shadow: 0px 2px 16px 0px rgba(0,0,0,0.19);
+                box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.19);
                 border-radius: 12px;
                 z-index: 1000;
                 overflow: hidden;
@@ -824,7 +826,7 @@ body {
                 .user-menu-header {
                     width: 454px;
                     height: 182px;
-                    background: linear-gradient( 180deg, #DCE0FF 0%, #FFFFFF 100%);
+                    background: linear-gradient(180deg, #DCE0FF 0%, #FFFFFF 100%);
                     border-radius: 12px 12px 0px 0px;
                     display: flex;
                     align-items: center;
