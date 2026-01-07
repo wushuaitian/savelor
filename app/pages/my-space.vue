@@ -20,13 +20,24 @@
       </div>
       <div class="form-item">
         <div class="form-label">核查主体</div>
-        <el-input v-model="formData.subject" class="form-control" placeholder="请输入核查主体" clearable />
+        <el-input 
+          v-model="formData.subject" 
+          class="form-control" 
+          placeholder="请输入核查主体" 
+          clearable 
+          @keyup.enter="handleSearch"
+        />
       </div>
+      <el-button type="primary" class="search-button" @click="handleSearch">搜索</el-button>
     </div>
 
     <!-- 卡片模块 -->
-    <div class="card-module" @scroll="handleScroll">
-      <div class="card-grid">
+    <div class="card-module">
+      <!-- 空数据状态 -->
+      <el-empty v-if="!loading && cardList.length === 0" description="暂无报告数据" :image-size="120" />
+      
+      <!-- 卡片列表 -->
+      <div v-else class="card-grid">
         <div 
           v-for="(card, index) in cardList" 
           :key="index" 
@@ -95,17 +106,25 @@
         </div>
       </div>
       
-      <!-- 加载更多 -->
-      <div v-if="loading" class="loading-more">
-        <div class="loading-spinner"></div>
-        <span>加载中...</span>
+      <!-- 分页 -->
+      <div v-if="total > 0" class="pagination-wrapper">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[9, 18, 27, 36]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { reportsMy } from '../../composables/msg'
 
 // 表单数据
 const formData = reactive({
@@ -114,54 +133,71 @@ const formData = reactive({
   subject: ''
 })
 
+// 分页参数
+const currentPage = ref(1)
+const pageSize = ref(9)
+const total = ref(0)
+
 // 卡片数据
 const cardList = ref([])
 const loading = ref(false)
-const currentPage = ref(1)
 const hoverCardId = ref(null)
 const hoveredButton = ref(null)
 
-// 模拟卡片数据
-const generateMockCards = (page) => {
-  const cards = []
-  const types = ['通用报告', '专项报告']
-  const tagOptions = ['核查报告', '合规审计', '风险评估', '财务分析', '市场调研']
-  
-  for (let i = 0; i < 6; i++) {
-    const index = (page - 1) * 6 + i
-    cards.push({
-      id: index,
-      title: `这是一个很长的报告标题用于测试省略号效果的具体展示_${index + 1}`,
-      type: types[index % 2],
-      time: `2025-01-${String((index % 30) + 1).padStart(2, '0')}`,
-      number: `NO.${String(100000 + index)}`,
-      amount: `¥${(Math.random() * 10000).toFixed(2)}`,
-      tags: tagOptions.slice(0, Math.floor(Math.random() * 4) + 1)
+// 映射时间参数
+const timeRangeMap = {
+  'all': 'ALL',
+  '7days': 'LAST_7',
+  '30days': 'LAST_30',
+  '60days': 'LAST_60'
+}
+
+// 获取报告列表
+const fetchReports = async () => {
+  loading.value = true
+  try {
+    const res = await reportsMy({
+      page: currentPage.value,
+      size: pageSize.value,
+      timeRange: timeRangeMap[formData.time] || 'ALL',
+      type: formData.type,
+      keyword: formData.subject
     })
+    
+    if (res.code === 200) {
+      cardList.value = res.data.records || []
+      total.value = res.data.total || 0
+    }
+  } catch (error) {
+    console.error('获取报告列表失败:', error)
+  } finally {
+    loading.value = false
   }
-  return cards
+}
+
+// 搜索
+const handleSearch = () => {
+  currentPage.value = 1
+  fetchReports()
+}
+
+// 分页改变
+const handlePageChange = (page) => {
+  currentPage.value = page
+  fetchReports()
+}
+
+// 每页数量改变
+const handleSizeChange = (size) => {
+  pageSize.value = size
+  currentPage.value = 1
+  fetchReports()
 }
 
 // 初始化加载数据
-cardList.value = generateMockCards(1)
-
-// 滚动加载
-const handleScroll = (e) => {
-  const { scrollTop, scrollHeight, clientHeight } = e.target
-  if (scrollTop + clientHeight >= scrollHeight - 100 && !loading.value) {
-    loadMore()
-  }
-}
-
-// 加载更多
-const loadMore = async () => {
-  loading.value = true
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  currentPage.value++
-  const newCards = generateMockCards(currentPage.value)
-  cardList.value = [...cardList.value, ...newCards]
-  loading.value = false
-}
+onMounted(() => {
+  fetchReports(false)
+})
 </script>
 
 <style scoped lang="scss">
@@ -179,8 +215,29 @@ const loadMore = async () => {
   background: #ffffff;
   z-index: 10;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.search-button {
+  width: 74px;
+  height: 44px;
+  background: #2134DE;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #1a2bc5;
+    transform: translateY(-1px);
+  }
 }
 
 .form-item {
@@ -261,6 +318,8 @@ const loadMore = async () => {
   padding-bottom: 30px;
   max-height: calc(100vh - 104px);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   
   &::-webkit-scrollbar {
     width: 6px;
@@ -423,33 +482,13 @@ const loadMore = async () => {
   }
 }
 
-// 加载更多
-.loading-more {
+// 分页
+.pagination-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 40px 0;
-  gap: 12px;
-  
-  .loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid #E4E5EA;
-    border-top-color: #2134DE;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  
-  span {
-    font-size: 14px;
-    color: #4E5969;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  align-items: center;
+  margin-top: 40px;
+  padding: 24px 0;
+  background-color: transparent;
 }
 </style>

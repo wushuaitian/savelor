@@ -25,7 +25,7 @@
                 </div> -->
                 <div @click="navigaJump('mySpace')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'mySpace' }">
-                    我的空间
+                    我的报告
                 </div>
                 <!-- <div @click="navigaJump('AiTool')" class="menu-text"
                     :class="{ 'menu-active': activeMenu === 'AiTool' }">
@@ -183,10 +183,9 @@ import Home from "./home-page.vue";
 import Plagiarism from "./plagiarism.vue";
 import Article from "./blog/index.vue";
 import problem from "./problem.vue";
-// 我的工具
+// 我的报告
 import mySpace from "./my-space.vue";
-// 个人信息页
-import userProfile from "./user-profile.vue";
+
 
 // 工具页 ai生成
 import AiTool from "./tool-ai.vue";
@@ -686,16 +685,10 @@ const navigaJump = (event) => {
             activeMenu.value = 'auditSpace'
             break;
 
-        // 我的空间
+        // 我的报告
         case 'mySpace':
             component.value = mySpace
             activeMenu.value = 'mySpace'
-            break;
-        // 个人信息页
-        case 'userProfile':
-            component.value = userProfile
-            activeMenu.value = 'userProfile'
-            userMenuOpen.value = false
             break;
         // 企业材料
         case 'companyMaterial':

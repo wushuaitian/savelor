@@ -22,21 +22,14 @@ export function userInfo(data: RequestParams) {
     })
 }
 
-export function userUpdate(data: RequestParams) {
+//我的报告列表
+export function reportsMy(data: RequestParams) {
     return request({
-        url: `/loonool/user/profile`,
-        method: 'put',
-        data,
-    })
-}
-export function projects(data: RequestParams) {
-    return request({
-        url: `/savelor/projects/list/page`,
+        url: `/savelor/reports/my`,
         method: 'get',
         params: data,
     })
 }
-
 // 获取我的空间列表（搜索+分页）
 export function spaces(data: RequestParams) {
     return request({
