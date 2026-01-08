@@ -30,11 +30,11 @@ export function reportsMy(data: RequestParams) {
         params: data,
     })
 }
-// 获取我的空间列表（搜索+分页）
-export function spaces(data: RequestParams) {
+//我的报告删除
+export function reportsDelete(data: RequestParams) {
     return request({
-        url: `/savelor/spaces`,
-        method: 'get',
-        params: data,
+        url: `/savelor/reports/delete`,
+        method: 'post',
+        data: data,
     })
 }

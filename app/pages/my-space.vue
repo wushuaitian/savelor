@@ -50,7 +50,7 @@
           
           <!-- 第二行：类型、时间、编号、金额 -->
           <div class="card-meta">
-            <span>{{ card.type }}</span>
+            <span>{{ card.type === 'general' ? '通用报告' : '专项报告' }}</span>
             <span class="divider">|</span>
             <span>{{ card.time }}</span>
             <span class="divider">|</span>
@@ -93,11 +93,12 @@
               <img :src="hoverCardId === index && hoveredButton === 'download' ? '/img/downloadH.png' : '/img/download.png'" alt="下载" />
               <span>下载</span>
             </div>
-            <div 
+            <div
               class="action-button delete-btn"
               :class="{ 'hover-delete': hoverCardId === index && hoveredButton === 'delete' }"
               @mouseenter="hoveredButton = 'delete'"
               @mouseleave="hoveredButton = null"
+              @click="showDeleteDialog(card.id)"
             >
               <img :src="hoverCardId === index && hoveredButton === 'delete' ? '/img/deleteH.png' : '/img/delete.png'" alt="删除" />
               <span>删除</span>
@@ -119,12 +120,29 @@
         />
       </div>
     </div>
+
+    <!-- 删除确认弹窗 -->
+    <div v-if="showDeleteModal" class="delete-modal-overlay" @click.self="hideDeleteDialog">
+      <div class="delete-modal">
+        <div class="modal-header">
+          <span class="modal-title">提示</span>
+          <span class="modal-close" @click="hideDeleteDialog">×</span>
+        </div>
+        <div class="modal-content">
+          <p>确认删除此报告吗？</p>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-button" @click="hideDeleteDialog">取消</button>
+          <button class="confirm-button" @click="confirmDelete">确定</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { reportsMy } from '../../composables/msg'
+import { reportsMy, reportsDelete } from '../../composables/msg'
 
 // 表单数据
 const formData = reactive({
@@ -143,6 +161,10 @@ const cardList = ref([])
 const loading = ref(false)
 const hoverCardId = ref(null)
 const hoveredButton = ref(null)
+
+// 删除弹窗相关数据
+const showDeleteModal = ref(false)
+const deleteTargetId = ref(null)
 
 // 映射时间参数
 const timeRangeMap = {
@@ -194,9 +216,37 @@ const handleSizeChange = (size) => {
   fetchReports()
 }
 
+// 显示删除确认弹窗
+const showDeleteDialog = (reportId) => {
+  deleteTargetId.value = reportId
+  showDeleteModal.value = true
+}
+
+// 隐藏删除确认弹窗
+const hideDeleteDialog = () => {
+  showDeleteModal.value = false
+  deleteTargetId.value = null
+}
+
+// 确认删除报告
+const confirmDelete = async () => {
+  if (deleteTargetId.value) {
+    try {
+      const res = await reportsDelete({ reportId: deleteTargetId.value })
+      if (res.code === 200) {
+        // 删除成功,重新获取列表
+        fetchReports()
+        hideDeleteDialog()
+      }
+    } catch (error) {
+      console.error('删除报告失败:', error)
+    }
+  }
+}
+
 // 初始化加载数据
 onMounted(() => {
-  fetchReports(false)
+  fetchReports()
 })
 </script>
 
@@ -490,5 +540,133 @@ onMounted(() => {
   margin-top: 40px;
   padding: 24px 0;
   background-color: transparent;
+}
+
+// 删除弹窗样式
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.delete-modal {
+  width: 643px;
+  height: 314px;
+  background: #FFFFFF;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 30px 0;
+  border-bottom: none;
+  
+  .modal-title {
+    font-family: 'PingFangSC PingFang SC';
+    font-weight: 500;
+    font-size: 20px;
+    color: #1D2129;
+    line-height: 28px;
+    text-align: left;
+    font-style: normal;
+  }
+  
+  .modal-close {
+    font-size: 24px;
+    color: #85909C;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    
+    &:hover {
+      color: #4E5969;
+    }
+  }
+}
+
+.modal-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  
+  p {
+    font-family: 'PingFangSC PingFang SC';
+    font-weight: 400;
+    font-size: 16px;
+    color: #4E5969;
+    line-height: 22px;
+    text-align: center;
+    margin: 0;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 0 21px;
+  
+  .cancel-button {
+    width: 100px;
+    height: 42px;
+    background: #F2F3F5;
+    border-radius: 6px;
+    border: none;
+    font-family: 'PingFangSC PingFang SC';
+    font-weight: 500;
+    font-size: 16px;
+    color: #4E5969;
+    line-height: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #E4E5EA;
+    }
+  }
+  
+  .confirm-button {
+    width: 100px;
+    height: 42px;
+    background: #2134DE;
+    border-radius: 6px;
+    border: none;
+    font-family: 'PingFangSC PingFang SC';
+    font-weight: 500;
+    font-size: 16px;
+    color: #FFFFFF;
+    line-height: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #1a2bc5;
+      transform: translateY(-1px);
+    }
+  }
 }
 </style>
