@@ -720,20 +720,18 @@ body {
 }
 
 .navigation {
-    width: 98%;
-    height: 6vh;
-    padding-top: 28px;
-    padding-bottom: 11px;
-    padding-left: 20px;
-    padding-right: 20px;
+    width: 100%;
+    height: 100px;
     box-shadow: inset 0px -1px 1px 0px rgba(219, 219, 219, 0.5);
     position: relative;
 
     .logo {
+        width: 204px;
         font-family: var(--font_aiRHjzievx_default);
         font-size: 24px;
         font-weight: 700;
         white-space: pre-wrap;
+        margin-left: 20px;
 
         .logo-img {
             width: 40px;
@@ -750,23 +748,47 @@ body {
         column-gap: 24px;
 
         .menu-text {
-            font-size: 18px;
+            width: 100px;
+            height: 45px;
+            background: transparent;
+            border-radius: 8px;
+            font-family: PingFangSC, PingFang SC;
             font-weight: 400;
-            color: #6C7C93;
+            font-size: 18px;
+            color: #101414;
+            line-height: 25px;
+            text-align: center;
+            font-style: normal;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .menu-text:hover {
-            color: #1D2530;
+            background: #F2F3F5;
         }
 
         .menu-active {
+            width: 100px;
+            height: 45px;
+            background: #F2F3F5;
+            border-radius: 8px;
+            font-family: PingFangSC, PingFang SC;
             font-weight: 500;
-            color: #2134DE !important;
+            font-size: 18px;
+            color: #2134DE;
+            line-height: 25px;
+            text-align: center;
+            font-style: normal;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     }
 
     .naviga-button {
+        margin-right: 20px;
         .loin {
             padding: 10px 32px;
             border-radius: 26px;
