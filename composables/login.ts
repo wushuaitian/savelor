@@ -177,6 +177,25 @@ export function savelorUserLogin(data: RequestParams) {
     })
 }
 /**
+ * 获取用户信息
+ */
+export function usersMe(data: RequestParams) {
+    return request({
+        url: '/savelor/users/me',
+        method: 'get',
+    })
+}
+/**
+ * 更新用户信息
+ */
+export function usersProfile(data: RequestParams) {
+    return request({
+        url: '/savelor/users/profile',
+        method: 'put',
+        data
+    })
+}
+/**
  * 获取美国州列表（50州 + DC）
  */
 export function savelorMetaUsStates(data: RequestParams) {

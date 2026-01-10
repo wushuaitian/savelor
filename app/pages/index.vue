@@ -76,18 +76,26 @@
                     <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
                         class="h-40 w-40">
 
-                    <div v-if="userMenuOpen" class="user-menu">
+                    <div v-if="userMenuOpen" class="user-menu" @click.stop>
                         <div class="user-menu-header">
                             <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
                                 class="user-menu-avatar" alt="用户头像">
                         </div>
                         <div class="user-info-section">
-                            <div class="info-title">电子邮箱</div>
+                            <div class="info-title">用户名</div>
+                            <div class="info-input username-input">
+                                <span>{{ userInfo.username || '' }}</span>
+                                <span class="edit-text" @click.stop="openEditUsernameDialog">修改</span>
+                            </div>
+                            <div class="info-title" style="margin-top: 18px;">电子邮箱</div>
                             <div class="info-input email-input">{{ userInfo.email || '' }}</div>
-                            <div class="info-title" style="margin-top: 18px;">用户名</div>
-                            <div class="info-input username-input">{{ userInfo.username || '' }}</div>
+                            <div class="info-title" style="margin-top: 18px;">密码</div>
+                            <div class="info-input password-input">
+                                <span>••••••••</span>
+                                <span class="edit-text">修改</span>
+                            </div>
                         </div>
-                        <div class="logout-button" @click="handleLogout">退出登录</div>
+                        <div class="logout-button" @click.stop="handleLogout">退出登录</div>
                     </div>
                 </div>
             </div>
@@ -159,14 +167,20 @@
         :show-close="true">
         <el-form ref="formRef" :label-position="top" label-width="auto" :model="formLabelAlign" style="max-width: 600px"
             :rules="rules">
+            <el-form-item v-if="curretnDialog === 'register'" label="用户名" label-position="top" prop="username">
+                <el-input v-model="formLabelAlign.username" placeholder="请输入你的用户名" />
+            </el-form-item>
             <el-form-item label="电子邮箱" label-position="top" prop="email">
                 <el-input v-model="formLabelAlign.email" placeholder="请输入你的邮箱" />
             </el-form-item>
             <el-form-item label="密码" label-position="top" prop="password">
                 <el-input v-model="formLabelAlign.password" type="password" placeholder="请输入你的密码" show-password />
             </el-form-item>
+            <el-form-item v-if="curretnDialog === 'register'" label="确认密码" label-position="top" prop="confirmPassword">
+                <el-input v-model="formLabelAlign.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
+            </el-form-item>
             <el-form-item label-position="top">
-                <el-button class="w-p-100 login-submit-btn" type="primary" @click="loginButton">登录</el-button>
+                <el-button class="w-p-100 login-submit-btn" type="primary" @click="loginButton">{{ curretnDialog === 'register' ? '注册' : '登录' }}</el-button>
             </el-form-item>
             <el-form-item label-position="top">
                 <div class="text-button" v-if="curretnDialog == 'login'" @click="loginOpen('register')">还没有账号? 立即注册
@@ -175,10 +189,33 @@
             </el-form-item>
         </el-form>
     </el-dialog>
+
+    <!-- 修改用户名弹窗 -->
+    <div v-if="editUsernameVisible" class="edit-username-overlay" @click="closeEditUsernameDialog">
+        <div class="edit-username-dialog" @click.stop>
+            <div class="edit-dialog-header">
+                <div class="edit-dialog-title">修改用户名称</div>
+                <span class="edit-dialog-close" @click="closeEditUsernameDialog">×</span>
+            </div>
+            <div class="edit-dialog-content">
+                <div class="edit-dialog-label">用户名</div>
+                <input 
+                    v-model="editUsernameValue" 
+                    type="text" 
+                    class="edit-dialog-input" 
+                    placeholder="请输入用户名称"
+                />
+            </div>
+            <div class="edit-dialog-footer">
+                <button class="edit-dialog-cancel-btn" @click="closeEditUsernameDialog">取消</button>
+                <button class="edit-dialog-confirm-btn" @click="confirmEditUsername">确定</button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, shallowRef } from "vue";
 import Home from "./home-page.vue";
 import Plagiarism from "./plagiarism.vue";
 import Article from "./blog/index.vue";
@@ -199,7 +236,9 @@ import companyMaterial from "./corporate-materials.vue";
 
 import {
     savelorUserRegister,
-    savelorUserLogin
+    savelorUserLogin,
+    usersMe,
+    usersProfile
 } from "../../composables/login.ts";
 import {
     msgList
@@ -306,6 +345,52 @@ const initSSEMsg = () => {
     }
 };
 
+
+// 修改用户名弹窗
+const editUsernameVisible = ref(false);
+const editUsernameValue = ref('');
+
+// 打开修改用户名弹窗
+const openEditUsernameDialog = () => {
+    editUsernameValue.value = userInfo.value.username || '';
+    editUsernameVisible.value = true;
+};
+
+// 关闭修改用户名弹窗
+const closeEditUsernameDialog = () => {
+    editUsernameVisible.value = false;
+    editUsernameValue.value = '';
+};
+
+// 确认修改用户名
+const confirmEditUsername = async () => {
+    if (!editUsernameValue.value.trim()) {
+        ElMessage.warning('用户名不能为空');
+        return;
+    }
+    
+    try {
+        const res = await usersProfile({
+            avatarUrl: userInfo.value.avatar || '',
+            email: userInfo.value.email || '',
+            username: editUsernameValue.value.trim()
+        });
+        
+        if (res.code === 200) {
+            ElMessage.success('用户名修改成功');
+            closeEditUsernameDialog();
+            // 重新获取用户信息以更新显示
+            await fetchUserInfo();
+        }
+    } catch (error) {
+        console.error('修改用户名失败:', error);
+        const errorMsg = error?.response?.data?.message || error?.message || '修改用户名失败，请稍后重试';
+        ElMessage.error(errorMsg);
+    }
+};
+
+
+
 // 断开 SSE 连接
 const disconnectSSEMsg = () => {
     if (eventSource) {
@@ -314,6 +399,8 @@ const disconnectSSEMsg = () => {
         console.log('SSE 连接已断开');
     }
 };
+
+
 
 // 格式化时间函数
 const formatDateTime = (dateTime) => {
@@ -367,6 +454,8 @@ const handleMsgDropdownVisibleChange = (visible) => {
     }
 };
 
+
+
 // 备用 HTTP 接口（用于初始加载或 SSE 失败时）
 const msgApi = () => {
     msgList({}).then(res => {
@@ -383,7 +472,7 @@ const msgApi = () => {
 };
 
 //  组件切换
-const component = ref(ReviewSpace);
+const component = shallowRef(ReviewSpace);
 
 const activeMenu = ref('ReviewSpace');
 
@@ -408,19 +497,39 @@ const userInfo = ref({
 });
 const userMenuOpen = ref(false);
 
+// 获取用户信息
+const fetchUserInfo = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        isLoggedIn.value = false;
+        return;
+    }
+
+    try {
+        const res = await usersMe({});
+        if (res.code === 200) {
+            userInfo.value = {
+                email: res.data.email || '',
+                avatar: res.data.avatarUrl || '',
+                username: res.data.username || ''
+            };
+            isLoggedIn.value = true;
+        }
+    } catch (error) {
+        console.error('获取用户信息失败:', error);
+        isLoggedIn.value = false;
+    }
+};
+
 // 检查登录状态
 const checkLoginStatus = () => {
     const token = localStorage.getItem('token');
-    const savedUserInfo = localStorage.getItem('userInfo');
-    if (token && savedUserInfo) {
-        isLoggedIn.value = true;
-        try {
-            userInfo.value = JSON.parse(savedUserInfo);
-        } catch (e) {
-            console.error('解析用户信息失败', e);
-        }
+    if (token) {
+        fetchUserInfo();
     }
 };
+
+
 
 // 切换用户菜单
 const toggleUserMenu = () => {
@@ -433,6 +542,7 @@ const handleLogout = () => {
     disconnectSSEMsg();
 
     localStorage.removeItem('token');
+    // 清除可能存在的旧用户信息缓存
     localStorage.removeItem('userInfo');
     isLoggedIn.value = false;
     userInfo.value = {
@@ -535,8 +645,10 @@ const loginOpen = (text) => {
             formRef.value.resetFields();
         } else {
             // 如果表单引用还未初始化，直接重置数据
+            formLabelAlign.username = '';
             formLabelAlign.email = '';
             formLabelAlign.password = '';
+            formLabelAlign.confirmPassword = '';
         }
     });
 };
@@ -544,8 +656,10 @@ const loginOpen = (text) => {
 
 // 表单
 const formLabelAlign = reactive({
+    username: '',
     email: '',
     password: '',
+    confirmPassword: '',
 });
 const formRef = ref();
 
@@ -564,16 +678,39 @@ const validateEmail = (rule, value, callback) => {
     }
 };
 
+
+
+// 确认密码验证规则
+const validateConfirmPassword = (rule, value, callback) => {
+    if (!value) {
+        callback(new Error('请再次输入密码'));
+    } else if (value !== formLabelAlign.password) {
+        callback(new Error('两次输入的密码不一致'));
+    } else {
+        callback();
+    }
+};
+
+
+
 // 表单校验规则
-const rules = reactive({
+const rules = computed(() => ({
+    username: curretnDialog.value === 'register' ? [
+        { required: true, message: '请输入用户名', trigger: 'blur' },
+        { min: 2, message: '用户名至少2位', trigger: 'blur' },
+        { max: 20, message: '用户名最多20位', trigger: 'blur' }
+    ] : [],
     email: [
         { required: true, validator: validateEmail, trigger: 'blur' }
     ],
     password: [
         { required: true, message: '请输入密码', trigger: 'blur' },
         { min: 6, message: '密码长度至少6位', trigger: 'blur' }
-    ]
-});
+    ],
+    confirmPassword: curretnDialog.value === 'register' ? [
+        { required: true, validator: validateConfirmPassword, trigger: 'blur' }
+    ] : []
+}));
 
 
 
@@ -589,18 +726,13 @@ const loginButton = async () => {
             savelorUserLogin({
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
+                username: formLabelAlign.username,
             }).then(res => {
                 console.log(res, 'resresresresres');
                 if (res.code == 200) {
                     localStorage.setItem('token', res.data.token);
-                    // 保存用户信息
-                    const userData = {
-                        email: formLabelAlign.email,
-                        avatar: res.data.user.avatarUrl,
-                        username: res.data.user.username
-                    };
-                    userInfo.value = userData;
-                    isLoggedIn.value = true;
+                    // 登录成功后获取用户信息
+                    fetchUserInfo();
 
                     // 登录成功后初始化 SSE 连接
                     // initSSEMsg();
@@ -623,6 +755,7 @@ const loginButton = async () => {
             savelorUserRegister({
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
+                username: formLabelAlign.username,
             }).then(res => {
                 // 显示返回的提示语
                 if (res.code == 200) {
@@ -642,6 +775,8 @@ const loginButton = async () => {
         console.log("表单验证失败", error);
     }
 };
+
+
 /**
  * 导航跳转
  */
@@ -699,6 +834,7 @@ const navigaJump = (event) => {
             break;
     }
 };
+
 
 </script>
 
@@ -887,11 +1023,35 @@ body {
                         font-style: normal;
                         display: flex;
                         align-items: center;
+                        justify-content: space-between;
                         padding: 0 16px;
                         box-sizing: border-box;
                         overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
+
+                        > span:not(.edit-text) {
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            flex: 1;
+                            min-width: 0;
+                        }
+
+                        .edit-text {
+                            font-family: PingFangSC, PingFang SC;
+                            font-weight: 400;
+                            font-size: 14px;
+                            color: #1D2129;
+                            line-height: 20px;
+                            text-align: left;
+                            font-style: normal;
+                            cursor: pointer;
+                            flex-shrink: 0;
+                            margin-left: 12px;
+
+                            &:hover {
+                                color: #2134DE;
+                            }
+                        }
                     }
                 }
 
@@ -1351,9 +1511,8 @@ body {
     }
 
     .el-dialog__body {
-        padding: 0 32px 32px 32px;
+        padding: 32px 32px 32px 32px;
         position: relative;
-        padding-top: 0;
     }
 
     .el-form-item__label {
@@ -1637,6 +1796,166 @@ body {
         font-size: 14px;
         color: #85909C;
         line-height: 20px;
+    }
+}
+
+// 修改用户名弹窗样式
+.edit-username-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+
+    .edit-username-dialog {
+        width: 643px;
+        height: 314px;
+        background: #FFFFFF;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+
+        .edit-dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px;
+            padding-bottom: 0;
+
+            .edit-dialog-title {
+                font-family: PingFangSC, PingFang SC;
+                font-weight: 500;
+                font-size: 18px;
+                color: #1D2129;
+                line-height: 25px;
+                text-align: left;
+                font-style: normal;
+            }
+
+            .edit-dialog-close {
+                font-size: 24px;
+                color: #85909C;
+                cursor: pointer;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    color: #4E5969;
+                }
+            }
+        }
+
+        .edit-dialog-content {
+            padding: 0 30px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            .edit-dialog-label {
+                width: 48px;
+                height: 22px;
+                font-family: PingFangSC, PingFang SC;
+                font-weight: 500;
+                font-size: 16px;
+                color: #4E5969;
+                line-height: 22px;
+                text-align: left;
+                font-style: normal;
+                margin-bottom: 10px;
+            }
+
+            .edit-dialog-input {
+                width: 583px;
+                height: 50px;
+                background: #F2F3F5;
+                border-radius: 8px;
+                border: none;
+                outline: none;
+                padding: 0 16px;
+                box-sizing: border-box;
+                font-family: PingFangSC, PingFang SC;
+                font-weight: 400;
+                font-size: 16px;
+                color: #1D2129;
+                line-height: 22px;
+                text-align: left;
+                font-style: normal;
+
+                &::placeholder {
+                    color: #9CA3AF;
+                }
+
+                &:focus {
+                    background: #FFFFFF;
+                    box-shadow: 0 0 0 1px #60A5FA inset;
+                }
+            }
+        }
+
+        .edit-dialog-footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 21px;
+
+            .edit-dialog-cancel-btn,
+            .edit-dialog-confirm-btn {
+                width: 100px;
+                height: 42px;
+                border-radius: 6px;
+                font-family: PingFangSC, PingFang SC;
+                font-weight: 500;
+                font-size: 16px;
+                line-height: 22px;
+                text-align: left;
+                font-style: normal;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &:hover {
+                    transform: translateY(-1px);
+                }
+
+                &:active {
+                    transform: translateY(0);
+                }
+            }
+
+            .edit-dialog-cancel-btn {
+                background: #F2F3F5;
+                color: #4E5969;
+
+                &:hover {
+                    background: #E5E7EB;
+                }
+            }
+
+            .edit-dialog-confirm-btn {
+                background: #2134DE;
+                color: #FFFFFF;
+
+                &:hover {
+                    background: #1a28b8;
+                }
+            }
+        }
     }
 }
 </style>
