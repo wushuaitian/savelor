@@ -166,6 +166,16 @@ export function savelorUserRegister(data: RequestParams) {
 }
 
 /**
+ * 验证码
+ */
+export function captcha(data: RequestParams) {
+    return request({
+        url: '/savelor/auth/captcha',
+        method: 'get',
+    })
+}
+
+/**
  * 登录
  */
 
@@ -191,6 +201,16 @@ export function usersMe(data: RequestParams) {
 export function usersProfile(data: RequestParams) {
     return request({
         url: '/savelor/users/profile',
+        method: 'put',
+        data
+    })
+}
+/**
+ * 修改密码
+ */
+export function changePassword(data: RequestParams) {
+    return request({
+        url: '/savelor/users/change-password',
         method: 'put',
         data
     })

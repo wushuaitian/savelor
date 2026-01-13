@@ -33,8 +33,7 @@ export function reportsMy(data: RequestParams) {
 //我的报告删除
 export function reportsDelete(data: RequestParams) {
     return request({
-        url: `/savelor/reports/delete`,
-        method: 'post',
-        data: data,
+        url: `/savelor/reports/${data.reportId}`,
+        method: 'DELETE',
     })
 }

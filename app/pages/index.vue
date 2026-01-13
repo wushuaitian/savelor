@@ -40,7 +40,7 @@
 
             <!-- 登录按钮/用户头像 -->
             <div class="naviga-button flex align-center">
-                <div v-if="isLoggedIn">
+                <!-- <div v-if="isLoggedIn">
                     <el-dropdown trigger="click" max-height="400" @visible-change="handleMsgDropdownVisibleChange">
                         <div class="iconBox" @click="msgApi">
                             <img src="/img/msg.png" alt="" class="msg-img">
@@ -66,7 +66,7 @@
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
-                </div>
+                </div> -->
                 <div v-if="!isLoggedIn" class="flex align-center">
                     <div class="loin m-r-10 text-bold-500" @click="loginOpen('login')">登录</div>
                     <div class="sign text-bold-500" @click="loginOpen('register')">注册</div>
@@ -92,7 +92,7 @@
                             <div class="info-title" style="margin-top: 18px;">密码</div>
                             <div class="info-input password-input">
                                 <span>••••••••</span>
-                                <span class="edit-text">修改</span>
+                                <span class="edit-text" @click.stop="openEditPasswordDialog">修改</span>
                             </div>
                         </div>
                         <div class="logout-button" @click.stop="handleLogout">退出登录</div>
@@ -151,8 +151,8 @@
                     <div class="mobile-user-avatar-container">
                         <!-- userInfo.avatar -->
                         <!-- <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" class="mobile-user-avatar"> -->
-                        <img src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" alt="">
-                        <!-- <div class="mobile-user-email">{{ userInfo.email || '用户' }}</div> -->
+                        <!-- <img src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" alt=""> -->
+                        <div class="mobile-user-email">{{ userInfo.username || '' }}</div>
                     </div>
                     <div class="mobile-logout-btn" @click="handleLogout">退出登录</div>
                 </div>
@@ -179,6 +179,19 @@
             <el-form-item v-if="curretnDialog === 'register'" label="确认密码" label-position="top" prop="confirmPassword">
                 <el-input v-model="formLabelAlign.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
             </el-form-item>
+            <el-form-item v-if="curretnDialog === 'register'" label="图形验证码" label-position="top" prop="captcha">
+                <div class="captcha-wrapper">
+                    <el-input
+                        v-model="formLabelAlign.captcha"
+                        placeholder="请输入验证码"
+                        class="captcha-input"
+                    />
+                    <div class="captcha-image" @click="fetchCaptcha">
+                        <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
+                        <el-icon v-else class="is-loading"><loading /></el-icon>
+                    </div>
+                </div>
+            </el-form-item>
             <el-form-item label-position="top">
                 <el-button class="w-p-100 login-submit-btn" type="primary" @click="loginButton">{{ curretnDialog === 'register' ? '注册' : '登录' }}</el-button>
             </el-form-item>
@@ -199,16 +212,53 @@
             </div>
             <div class="edit-dialog-content">
                 <div class="edit-dialog-label">用户名</div>
-                <input 
-                    v-model="editUsernameValue" 
-                    type="text" 
-                    class="edit-dialog-input" 
+                <input
+                    v-model="editUsernameValue"
+                    type="text"
+                    class="edit-dialog-input"
                     placeholder="请输入用户名称"
                 />
             </div>
             <div class="edit-dialog-footer">
                 <button class="edit-dialog-cancel-btn" @click="closeEditUsernameDialog">取消</button>
                 <button class="edit-dialog-confirm-btn" @click="confirmEditUsername">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改密码弹窗 -->
+    <div v-if="editPasswordVisible" class="edit-username-overlay" @click="closeEditPasswordDialog">
+        <div class="edit-username-dialog edit-password-dialog" @click.stop>
+            <div class="edit-dialog-header">
+                <div class="edit-dialog-title">修改密码</div>
+                <span class="edit-dialog-close" @click="closeEditPasswordDialog">×</span>
+            </div>
+            <div class="edit-dialog-content edit-password-content">
+                <div class="edit-dialog-label">原始密码</div>
+                <input
+                    v-model="editPasswordData.oldPassword"
+                    type="password"
+                    class="edit-dialog-input"
+                    placeholder="请输入原始密码"
+                />
+                <div class="edit-dialog-label" style="margin-top: 16px;">新密码</div>
+                <input
+                    v-model="editPasswordData.newPassword"
+                    type="password"
+                    class="edit-dialog-input"
+                    placeholder="请输入新密码"
+                />
+                <div class="edit-dialog-label" style="margin-top: 16px;">确认密码</div>
+                <input
+                    v-model="editPasswordData.confirmPassword"
+                    type="password"
+                    class="edit-dialog-input"
+                    placeholder="请再次输入新密码"
+                />
+            </div>
+            <div class="edit-dialog-footer">
+                <button class="edit-dialog-cancel-btn" @click="closeEditPasswordDialog">取消</button>
+                <button class="edit-dialog-confirm-btn" @click="confirmEditPassword">确定</button>
             </div>
         </div>
     </div>
@@ -238,7 +288,9 @@ import {
     savelorUserRegister,
     savelorUserLogin,
     usersMe,
-    usersProfile
+    usersProfile,
+    changePassword,
+    captcha
 } from "../../composables/login.ts";
 import {
     msgList
@@ -368,14 +420,14 @@ const confirmEditUsername = async () => {
         ElMessage.warning('用户名不能为空');
         return;
     }
-    
+
     try {
         const res = await usersProfile({
             avatarUrl: userInfo.value.avatar || '',
             email: userInfo.value.email || '',
             username: editUsernameValue.value.trim()
         });
-        
+
         if (res.code === 200) {
             ElMessage.success('用户名修改成功');
             closeEditUsernameDialog();
@@ -385,6 +437,83 @@ const confirmEditUsername = async () => {
     } catch (error) {
         console.error('修改用户名失败:', error);
         const errorMsg = error?.response?.data?.message || error?.message || '修改用户名失败，请稍后重试';
+        ElMessage.error(errorMsg);
+    }
+};
+
+// 修改密码弹窗
+const editPasswordVisible = ref(false);
+const editPasswordData = reactive({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+});
+
+// 打开修改密码弹窗
+const openEditPasswordDialog = () => {
+    editPasswordData.oldPassword = '';
+    editPasswordData.newPassword = '';
+    editPasswordData.confirmPassword = '';
+    editPasswordVisible.value = true;
+};
+
+// 关闭修改密码弹窗
+const closeEditPasswordDialog = () => {
+    editPasswordVisible.value = false;
+    editPasswordData.oldPassword = '';
+    editPasswordData.newPassword = '';
+    editPasswordData.confirmPassword = '';
+};
+
+// 确认修改密码
+const confirmEditPassword = async () => {
+    // 表单验证
+    if (!editPasswordData.oldPassword) {
+        ElMessage.warning('请输入原始密码');
+        return;
+    }
+    if (!editPasswordData.newPassword) {
+        ElMessage.warning('请输入新密码');
+        return;
+    }
+    if (editPasswordData.newPassword.length < 8) {
+        ElMessage.warning('新密码长度至少8位');
+        return;
+    }
+    if (!editPasswordData.confirmPassword) {
+        ElMessage.warning('请再次输入新密码');
+        return;
+    }
+    if (editPasswordData.newPassword !== editPasswordData.confirmPassword) {
+        ElMessage.warning('两次输入的密码不一致');
+        return;
+    }
+
+    try {
+        const res = await changePassword({
+            oldPassword: editPasswordData.oldPassword,
+            newPassword: editPasswordData.newPassword,
+            confirmPassword: editPasswordData.confirmPassword
+        });
+
+        if (res.code === 200) {
+            ElMessage.success('密码修改成功');
+            closeEditPasswordDialog();
+            // 密码修改成功后清除token，让用户重新登录
+            localStorage.removeItem('token');
+            isLoggedIn.value = false;
+            userInfo.value = {
+                email: '',
+                avatar: '',
+                username: ''
+            };
+            userMenuOpen.value = false;
+        }else{
+            ElMessage.error(res.message);
+        }
+    } catch (error) {
+        console.error('修改密码失败:', error);
+        const errorMsg = error?.response?.data?.message || error?.message || '修改密码失败，请稍后重试';
         ElMessage.error(errorMsg);
     }
 };
@@ -628,6 +757,44 @@ const loginVisible = ref(false);
 // 登录状态 true为登录 false为注册
 const curretnDialog = ref('login');
 const curretnTitle = ref('Create Account');
+
+// 验证码相关
+const captchaImage = ref('');
+const captchaId = ref('');
+const captchaTimer = ref(null);
+const captchaExpiresIn = ref(0);
+
+// 获取验证码
+const fetchCaptcha = async () => {
+    try {
+        // 清除之前的定时器
+        if (captchaTimer.value) {
+            clearTimeout(captchaTimer.value);
+        }
+
+        const res = await captcha({});
+        console.log('验证码接口返回数据:', res);
+
+        if (res.code === 200 && res.data) {
+            // 后台返回的 base64 数据不包含前缀，需要手动添加
+            const base64Data = res.data.imageBase64
+            captchaImage.value = `data:image/png;base64,${base64Data}`;
+            captchaId.value = res.data.captchaId;
+            captchaExpiresIn.value = res.data.expiresInSeconds;
+
+            // 设置定时器，验证码过期后自动刷新
+            if (res.data.expiresInSeconds) {
+                captchaTimer.value = setTimeout(() => {
+                    fetchCaptcha();
+                }, (res.data.expiresInSeconds - 10) * 1000); // 提前10秒刷新
+            }
+        }
+    } catch (error) {
+        console.error('获取验证码失败:', error);
+        ElMessage.error('获取验证码失败，请重试');
+    }
+};
+
 const loginOpen = (text) => {
     if (text == 'login') {
         curretnTitle.value = '欢迎回来';
@@ -649,6 +816,19 @@ const loginOpen = (text) => {
             formLabelAlign.email = '';
             formLabelAlign.password = '';
             formLabelAlign.confirmPassword = '';
+            formLabelAlign.captcha = '';
+        }
+
+        // 如果是注册，获取验证码
+        if (text === 'register') {
+            fetchCaptcha();
+        } else {
+            // 清除验证码
+            captchaImage.value = '';
+            captchaId.value = '';
+            if (captchaTimer.value) {
+                clearTimeout(captchaTimer.value);
+            }
         }
     });
 };
@@ -660,6 +840,7 @@ const formLabelAlign = reactive({
     email: '',
     password: '',
     confirmPassword: '',
+    captcha: ''
 });
 const formRef = ref();
 
@@ -695,11 +876,11 @@ const validateConfirmPassword = (rule, value, callback) => {
 
 // 表单校验规则
 const rules = computed(() => ({
-    username: curretnDialog.value === 'register' ? [
+    username: [
         { required: true, message: '请输入用户名', trigger: 'blur' },
         { min: 2, message: '用户名至少2位', trigger: 'blur' },
         { max: 20, message: '用户名最多20位', trigger: 'blur' }
-    ] : [],
+    ],
     email: [
         { required: true, validator: validateEmail, trigger: 'blur' }
     ],
@@ -709,6 +890,9 @@ const rules = computed(() => ({
     ],
     confirmPassword: curretnDialog.value === 'register' ? [
         { required: true, validator: validateConfirmPassword, trigger: 'blur' }
+    ] : [],
+    captcha: curretnDialog.value === 'register' ? [
+        { required: true, message: '请输入验证码', trigger: 'blur' },
     ] : []
 }));
 
@@ -726,7 +910,7 @@ const loginButton = async () => {
             savelorUserLogin({
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
-                // username: formLabelAlign.username,
+                username: formLabelAlign.username,
             }).then(res => {
                 console.log(res, 'resresresresres');
                 if (res.code == 200) {
@@ -755,7 +939,9 @@ const loginButton = async () => {
             savelorUserRegister({
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
-                // username: formLabelAlign.username,
+                username: formLabelAlign.username,
+                captchaCode: formLabelAlign.captcha,
+                captchaId: captchaId.value
             }).then(res => {
                 // 显示返回的提示语
                 if (res.code == 200) {
@@ -768,6 +954,10 @@ const loginButton = async () => {
                 // 显示错误提示
                 const errorMsg = err?.response?.data?.message || err?.message || '注册失败，请稍后重试';
                 ElMessage.error(errorMsg);
+                // 验证码错误时刷新验证码
+                if (err?.response?.data?.code === 'INVALID_CAPTCHA' || err?.response?.status === 400) {
+                    fetchCaptcha();
+                }
             })
         }
     } catch (error) {
@@ -1461,6 +1651,48 @@ body {
             }
         }
     }
+
+    // 修改密码弹窗移动端适配
+    .edit-username-overlay {
+        padding: 0 16px;
+
+        .edit-username-dialog {
+            width: 100%;
+            height: auto;
+            min-height: 400px;
+
+            &.edit-password-dialog {
+                min-height: 520px;
+            }
+
+            .edit-dialog-header {
+                padding: 24px;
+            }
+
+            .edit-dialog-content {
+                padding: 0 24px;
+
+                &.edit-password-content {
+                    padding-top: 24px;
+                    padding-bottom: 16px;
+                }
+
+                .edit-dialog-input {
+                    width: 100%;
+                }
+            }
+
+            .edit-dialog-footer {
+                margin-bottom: 16px;
+
+                .edit-dialog-cancel-btn,
+                .edit-dialog-confirm-btn {
+                    width: 120px;
+                    height: 48px;
+                }
+            }
+        }
+    }
 }
 
 .el-dialog__title {
@@ -1599,6 +1831,52 @@ body {
 
         &:hover {
             color: #3B82F6;
+        }
+    }
+}
+
+// 验证码样式
+.captcha-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+
+    .captcha-input {
+        flex: 1;
+    }
+
+    .captcha-image {
+        width: 120px;
+        height: 48px;
+        border-radius: 6px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid #E5E7EB;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #F9FAFB;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .el-icon {
+            font-size: 24px;
+            color: #9CA3AF;
+        }
+
+        &:hover {
+            border-color: #60A5FA;
+            background: #F3F4F6;
+        }
+
+        &:active {
+            transform: scale(0.98);
         }
     }
 }
@@ -1820,6 +2098,11 @@ body {
         display: flex;
         flex-direction: column;
 
+        &.edit-password-dialog {
+            height: auto;
+            min-height: 440px;
+        }
+
         .edit-dialog-header {
             display: flex;
             justify-content: space-between;
@@ -1862,8 +2145,13 @@ body {
             flex-direction: column;
             justify-content: center;
 
+            &.edit-password-content {
+                justify-content: flex-start;
+                padding-top: 30px;
+                padding-bottom: 20px;
+            }
+
             .edit-dialog-label {
-                width: 48px;
                 height: 22px;
                 font-family: PingFangSC, PingFang SC;
                 font-weight: 500;

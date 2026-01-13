@@ -1,6 +1,8 @@
 <template>
   <div class="my-space-page">
-    <!-- 搜索模块 -->
+    <!-- 列表视图 -->
+    <div v-if="component === 'list'">
+      <!-- 搜索模块 -->
     <div class="search-module">
       <div class="form-item">
         <div class="form-label">选择时间</div>
@@ -14,6 +16,7 @@
       <div class="form-item">
         <div class="form-label">选择类型</div>
         <el-select v-model="formData.type" class="form-control" placeholder="请选择类型">
+          <el-option label="全部类型" value="all" />
           <el-option label="通用报告" value="general" />
           <el-option label="专项报告" value="special" />
         </el-select>
@@ -46,23 +49,23 @@
           @mouseleave="hoverCardId = null"
         >
           <!-- 第一行：标题 -->
-          <div class="card-title">{{ card.title }}</div>
+          <div class="card-title">{{ card.companyName }}</div>
           
           <!-- 第二行：类型、时间、编号、金额 -->
           <div class="card-meta">
-            <span>{{ card.type === 'general' ? '通用报告' : '专项报告' }}</span>
+            <span>{{ card.reportType === 'general' ? '通用报告' : '专项报告' }}</span>
             <span class="divider">|</span>
-            <span>{{ card.time }}</span>
+            <span>{{ formatDate(card.generatedAt) }}</span>
             <span class="divider">|</span>
-            <span>编号: {{ card.number }}</span>
+            <span>编号: {{ card.dunsNumber }}</span>
             <span class="divider">|</span>
-            <span>{{ card.amount }}</span>
+            <span>{{ card.priceUsd }}</span>
           </div>
           
           <!-- 第三行：类型标签 -->
           <div class="card-tags">
             <div 
-              v-for="(tag, tagIndex) in card.tags.slice(0, 3)" 
+              v-for="(tag, tagIndex) in parseDimensions(card.selectedDimensions).slice(0, 3)" 
               :key="tagIndex"
               class="tag-item"
             >
@@ -80,6 +83,7 @@
               :class="{ 'hover-view': hoverCardId === index && hoveredButton === 'view' }"
               @mouseenter="hoveredButton = 'view'"
               @mouseleave="hoveredButton = null"
+              @click="viewReport(card.reportId)"
             >
               <img :src="hoverCardId === index && hoveredButton === 'view' ? '/img/viewH.png' : '/img/view.png'" alt="查看" />
               <span>查看</span>
@@ -98,7 +102,7 @@
               :class="{ 'hover-delete': hoverCardId === index && hoveredButton === 'delete' }"
               @mouseenter="hoveredButton = 'delete'"
               @mouseleave="hoveredButton = null"
-              @click="showDeleteDialog(card.id)"
+              @click="showDeleteDialog(card.reportId)"
             >
               <img :src="hoverCardId === index && hoveredButton === 'delete' ? '/img/deleteH.png' : '/img/delete.png'" alt="删除" />
               <span>删除</span>
@@ -129,7 +133,7 @@
           <span class="modal-close" @click="hideDeleteDialog">×</span>
         </div>
         <div class="modal-content">
-          <p>确认删除此报告吗？</p>
+          <p>确认删除此报告的全部内容吗？</p>
         </div>
         <div class="modal-footer">
           <button class="cancel-button" @click="hideDeleteDialog">取消</button>
@@ -137,17 +141,31 @@
         </div>
       </div>
     </div>
+    </div>
+
+    <!-- 预览视图 -->
+    <MyReportPreview
+      v-else-if="component === 'preview'"
+      :report-id="currentReportId"
+      @back="component = 'list'"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { ref, reactive, onMounted, shallowRef } from 'vue'
 import { reportsMy, reportsDelete } from '../../composables/msg'
+import MyReportPreview from './my-report-preview.vue'
+
+// 组件切换
+const component = shallowRef('list')
+const currentReportId = ref('')
 
 // 表单数据
 const formData = reactive({
   time: 'all',
-  type: 'general',
+  type: 'all',
   subject: ''
 })
 
@@ -157,7 +175,7 @@ const pageSize = ref(9)
 const total = ref(0)
 
 // 卡片数据
-const cardList = ref([])
+const cardList = reactive([])
 const loading = ref(false)
 const hoverCardId = ref(null)
 const hoveredButton = ref(null)
@@ -165,6 +183,40 @@ const hoveredButton = ref(null)
 // 删除弹窗相关数据
 const showDeleteModal = ref(false)
 const deleteTargetId = ref(null)
+
+// 维度映射
+const dimensionMap = {
+  'DIM1_IDENTITY': '企业身份与存续状态',
+  'DIM2_SANCTIONS': '制裁与贸易管制',
+  'DIM3_REGULATORY': '金融与证券监管',
+  'DIM4_LITIGATION': '司法与诉讼记录',
+  'DIM5_BUSINESS': '商业行为与监管'
+}
+
+// 解析维度字段
+const parseDimensions = (dimensionsStr) => {
+  if (!dimensionsStr) return []
+  try {
+    const dimensions = JSON.parse(dimensionsStr)
+    return dimensions.map(dim => dimensionMap[dim] || dim)
+  } catch (error) {
+    console.error('解析维度失败:', error)
+    return []
+  }
+}
+
+// 格式化时间
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
 
 // 映射时间参数
 const timeRangeMap = {
@@ -182,14 +234,17 @@ const fetchReports = async () => {
       page: currentPage.value,
       size: pageSize.value,
       timeRange: timeRangeMap[formData.time] || 'ALL',
-      type: formData.type,
+      type: formData.type === 'all' ? '' : formData.type,
       keyword: formData.subject
     })
-    
+
     if (res.code === 200) {
-      cardList.value = res.data.records || []
+      cardList.length = 0
+      const list = res.data.list || []
+      list.forEach(item => cardList.push(item))
       total.value = res.data.total || 0
     }
+    console.log(cardList)
   } catch (error) {
     console.error('获取报告列表失败:', error)
   } finally {
@@ -235,13 +290,21 @@ const confirmDelete = async () => {
       const res = await reportsDelete({ reportId: deleteTargetId.value })
       if (res.code === 200) {
         // 删除成功,重新获取列表
+        ElMessage.success('报告删除成功')
         fetchReports()
         hideDeleteDialog()
       }
     } catch (error) {
       console.error('删除报告失败:', error)
+      ElMessage.error('报告删除失败，请重试')
     }
   }
+}
+
+// 查看报告
+const viewReport = (reportId) => {
+  currentReportId.value = reportId
+  component.value = 'preview'
 }
 
 // 初始化加载数据
@@ -459,7 +522,6 @@ onMounted(() => {
 }
 
 .tag-item {
-  width: 120px;
   height: 36px;
   background: #FFFFFF;
   border-radius: 8px;
@@ -478,7 +540,6 @@ onMounted(() => {
 // 分割线
 .divider-line {
   width: 100%;
-  height: 1px;
   border: 1px solid;
   opacity: 0.45;
   border-image: linear-gradient(135deg, rgba(225, 225, 225, 1), rgba(126, 126, 126, 1), rgba(225, 225, 225, 1)) 1 1;
@@ -527,7 +588,7 @@ onMounted(() => {
 
   &.hover-download,
   &.hover-view {
-    background: #E9EBFC;
+    background: #c3c8f6;
     color: #2134DE;
   }
 }
