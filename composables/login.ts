@@ -232,6 +232,18 @@ export function savelorReportsGenerate(data: RequestParams) {
         data,
     })
 }
+/**
+ * Step3： 获取详细报告
+ * @param data 
+ * @returns 
+ */
+export function savelorReportsDetailed(data: RequestParams) {
+    return request({
+        url: `/savelor/reports/detailed/${data.reportId}`,
+        method: 'get',
+        params: data,
+    })
+}
 
 // 创建空间
 export function savelorSpaces(data: RequestParams) {

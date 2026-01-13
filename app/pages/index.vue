@@ -167,7 +167,7 @@
         :show-close="true">
         <el-form ref="formRef" :label-position="top" label-width="auto" :model="formLabelAlign" style="max-width: 600px"
             :rules="rules">
-            <el-form-item v-if="curretnDialog === 'register'" label="用户名" label-position="top" prop="username">
+            <el-form-item label="用户名" label-position="top" prop="username">
                 <el-input v-model="formLabelAlign.username" placeholder="请输入你的用户名" />
             </el-form-item>
             <el-form-item label="电子邮箱" label-position="top" prop="email">
@@ -726,7 +726,7 @@ const loginButton = async () => {
             savelorUserLogin({
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
-                username: formLabelAlign.username,
+                // username: formLabelAlign.username,
             }).then(res => {
                 console.log(res, 'resresresresres');
                 if (res.code == 200) {
@@ -755,7 +755,7 @@ const loginButton = async () => {
             savelorUserRegister({
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
-                username: formLabelAlign.username,
+                // username: formLabelAlign.username,
             }).then(res => {
                 // 显示返回的提示语
                 if (res.code == 200) {

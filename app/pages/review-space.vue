@@ -3,41 +3,43 @@
     <div class="home">
         <!-- 第一步：项目信息输入 -->
         <div v-if="currentStep === 1" class="introduc introduc-one bg-img">
-            <div class="introduc-title text-bold-600">Savelor企业合规档案</div>
-            <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">让伪装成本趋零的时代，合作始于真实</div>
+            <div>
+                <div class="introduc-title text-bold-600">Savelor企业合规档案</div>
+                <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">让伪装成本趋零的时代，合作始于真实</div>
 
-            <!-- 输入框和按钮区域 -->
-            <div class="input-container flex align-center justify-center p-t-30">
-                <div class="input-wrapper flex align-center">
-                    <input type="text" class="space-input" placeholder="请输入项目名称" v-model="spaceName" @focus="inputFocus"
-                        @blur="inputBlur" />
-                </div>
-            </div>
-
-            <!-- 州选择和DUNS编号输入框区域 -->
-            <div class="input-row-container flex align-center justify-center p-t-20">
-                <div class="input-row-wrapper flex align-center">
-                    <!-- 州选择下拉框 -->
-                    <el-select v-model="selectedState" placeholder="弗罗里达州 (必选)" class="state-select"
-                        popper-class="region-select-dropdown">
-                        <el-option v-for="state in UsStateList" :key="state.code" :label="state.nameZh"
-                            :value="state.code" />
-                    </el-select>
-
-                    <!-- DUNS编号输入框 -->
-                    <div class="input-wrapper flex-1 flex align-center">
-                        <input type="text" class="space-input" placeholder="已输入9位DUNS编号 (选填)" v-model="dunsNumber"
-                            maxlength="9" @focus="inputFocus" @blur="inputBlur" />
+                <!-- 输入框和按钮区域 -->
+                <div class="input-container flex align-center justify-center p-t-30">
+                    <div class="input-wrapper flex align-center">
+                        <input type="text" class="space-input" placeholder="请输入项目名称" v-model="spaceName"
+                            @focus="inputFocus" @blur="inputBlur" />
                     </div>
                 </div>
-            </div>
 
-            <!-- 下一步按钮区域 -->
-            <div class="next-step-container flex align-center justify-center p-t-20">
-                <button class="next-step-btn " :class="{ 'next-step-btn-active': canCreate }" :disabled="!canCreate"
-                    @click="goToStep2">
-                    下一步
-                </button>
+                <!-- 州选择和DUNS编号输入框区域 -->
+                <div class="input-row-container flex align-center justify-center p-t-20">
+                    <div class="input-row-wrapper flex align-center">
+                        <!-- 州选择下拉框 -->
+                        <el-select v-model="selectedState" placeholder="弗罗里达州 (必选)" class="state-select"
+                            popper-class="region-select-dropdown">
+                            <el-option v-for="state in UsStateList" :key="state.code" :label="state.nameZh"
+                                :value="state.code" />
+                        </el-select>
+
+                        <!-- DUNS编号输入框 -->
+                        <div class="input-wrapper flex-1 flex align-center">
+                            <input type="text" class="space-input" placeholder="已输入9位DUNS编号 (选填)" v-model="dunsNumber"
+                                maxlength="9" @focus="inputFocus" @blur="inputBlur" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 下一步按钮区域 -->
+                <div class="next-step-container flex align-center justify-center p-t-20">
+                    <button class="next-step-btn " :class="{ 'next-step-btn-active': canCreate }" :disabled="!canCreate"
+                        @click="goToStep2">
+                        下一步
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -137,16 +139,49 @@
             <!-- 报告标题区域 -->
             <div class="report-title-section">
                 <div class="report-dimension-title">
-                    专项报告维度: {{ reportDimensionsText }}
+                    专项报告维度: {{ getDimensionNames() }}
                 </div>
                 <div class="report-subject">
-                    核查主体: {{ companyName || '企业名称' }}
+                    核查主体: {{ reportPreviewData.companyName || companyName || '企业名称' }}
                 </div>
             </div>
 
             <!-- 报告内容区域 -->
             <div class="report-content">
+                <div v-for="(dimension, index) in reportPreviewData.dimensionDetails" :key="index"
+                    class="dimension-section">
+                    <div class="dimension-title">{{ dimension.dimensionName }}</div>
+                    <div class="verification-facts">
+                        <div class="facts-title">核查事实:</div>
+                        <div v-if="dimension.checkpointFacts && dimension.checkpointFacts.length > 0" class="facts-list">
+                            <div v-for="(fact, factIndex) in dimension.checkpointFacts" :key="factIndex" class="fact-item">
+                                <div class="fact-title">{{ fact.checkpointName }}</div>
+                                <div class="fact-content">
+                                    <div class="fact-detail">事实: {{ fact.factDescription }}</div>
+                                    <div v-if="fact.checkDate" class="fact-meta">
+                                        <span>核查时间: {{ fact.checkDate }}</span>
+                                        <!-- <span v-if="fact.listVersion"> (名单版本: {{ fact.listVersion }})</span> -->
+                                    </div>
+                                    <div v-if="fact.dataSource" class="fact-meta">数据源: {{ fact.dataSource }}</div>
+                                    <div v-if="fact.referenceId" class="fact-meta">参考标识: {{ fact.referenceId }}</div>
+                                    <div v-if="fact.listPublishDate" class="fact-meta">名单发布日期: {{ fact.listPublishDate }}</div>
+                                    <div v-if="fact.restrictedItems" class="fact-meta">受限物项记录: {{ fact.restrictedItems }}</div>
+                                    <div v-if="fact.court" class="fact-meta">受理法院: {{ fact.court }} </div>
+                                    <div v-if="fact.penaltyReason" class="fact-meta">案件类型: {{ fact.penaltyReason }} </div>
+                                   <div v-if="fact.penaltyDate" class="fact-meta">处罚日期: {{ fact.penaltyDate }}</div>
+                                    <div v-if="fact.penaltyResult" class="fact-meta">处罚结果: {{ fact.penaltyResult }}</div>
+                                    <div v-if="fact.filingDate" class="fact-meta">立案日期: {{ fact.filingDate }}</div>
+                                    <div v-if="fact.caseStatus" class="fact-meta">当前状态: {{ fact.caseStatus }}</div>
 
+
+                                    <div v-if="fact.timeWindowEnd" class="fact-meta">时间窗口: {{ fact.timeWindowStart }} - {{ fact.timeWindowEnd }}</div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="no-facts">暂无核查事实</div>
+                    </div>
+                </div>
             </div>
 
             <!-- 底部操作按钮 -->
@@ -159,7 +194,7 @@
 </template>
 
 <script setup>
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 
 import { ref, computed, onMounted } from 'vue';
 
@@ -171,6 +206,8 @@ import {
     savelorReportsDraft,
     // 第二步 生成报告
     savelorReportsGenerate,
+    // 第三步 报告预览数据
+    savelorReportsDetailed,
 } from "../../composables/login.ts";
 
 // 步骤管理
@@ -200,11 +237,11 @@ const generalDimensions = [
 
 // 所有可选的维度
 const allDimensions = [
-    { label: '企业身份与存续状态', value: 'identity' },
-    { label: '制裁与贸易管制', value: 'sanctions' },
-    { label: '金融与证券监管', value: 'financial' },
-    { label: '司法与诉讼记录', value: 'judicial' },
-    { label: '商业行为与监管', value: 'business' }
+    { label: '企业身份与存续状态', value: 'DIM1_IDENTITY' },
+    { label: '制裁与贸易管制', value: 'DIM2_SANCTIONS' },
+    { label: '金融与证券监管', value: 'DIM3_REGULATORY' },
+    { label: '司法与诉讼记录', value: 'DIM4_LITIGATION' },
+    { label: '商业行为与监管', value: 'DIM5_BUSINESS' }
 ]
 
 // 州列表选项
@@ -215,9 +252,9 @@ const canCreate = computed(() => {
     if (!spaceName.value.trim()) {
         return false
     }
-    if (!selectedState.value) {
-        return false
-    }
+    // if (!selectedState.value) {
+    //     return false
+    // }
     return true
 })
 
@@ -238,10 +275,10 @@ const goToStep2 = () => {
             ElMessage.warning('请输入项目名称')
             return
         }
-        if (!selectedState.value) {
-            ElMessage.warning('请选择州')
-            return
-        }
+        // if (!selectedState.value) {
+        //     ElMessage.warning('请选择州')
+        //     return
+        // }
         // if (!dunsNumber.value) {
         //     ElMessage.warning('请输入DUNS编号')
         //     return
@@ -259,6 +296,9 @@ const goToStep2 = () => {
             // emit('spaceCreated', res.data.id)
             // localStorage.setItem('workspaceId', res.data.id);
             currentDraftId.value = res.data.draftId;
+            console.log(res.data, '第二步res.data');
+            console.log('spaceCreated', currentDraftId.value)
+
             // 进入第二步
             currentStep.value = 2
             ElMessage.success(res.message);
@@ -275,6 +315,9 @@ const goToStep2 = () => {
     currentStep.value = 2
 }
 
+
+// 选定生成报告信息
+const reportReturnData = ref({})
 // 返回第一步
 const goBackToStep1 = () => {
     currentStep.value = 1
@@ -303,7 +346,7 @@ const handleDimensionChange = () => {
     if (selectedReportType.value === 'special' && selectedDimensions.value.length === 0) {
         ElMessage.warning('请至少选择一个报告维度')
         // 恢复至少一个选择
-        selectedDimensions.value = ['identity']
+        selectedDimensions.value = ['DIM1_IDENTITY']
     }
 }
 
@@ -338,6 +381,8 @@ const generateReport = () => {
     }
 
     console.log('生成报告:', reportData)
+    console.log('第三步', currentDraftId.value)
+
     // TODO: 调用生成报告的API
     savelorReportsGenerate({
         dimensionCodes: selectedDimensions.value,
@@ -346,8 +391,11 @@ const generateReport = () => {
     }).then(res => {
         // 显示返回的提示语
         if (res.code == 200) {
-            UsStateList.value = res.data;
-            console.log(UsStateList.value, 'UsStateListUsStateList');
+            reportReturnData.value = res.data;
+            console.log(res.data, 'res.data 生成选定报告');
+
+            console.log(reportReturnData.value, 'UsStateListUsStateList');
+            getReportPreview()
         }
     }).catch(err => {
         console.error(err);
@@ -360,33 +408,103 @@ const generateReport = () => {
     currentStep.value = 3
 }
 
+// 第三步
+// 报告预览数据
+const reportPreviewData = ref({
+    companyName: '公司名称',
+    dimensionList: [
+        {
+            name: '制裁与贸易管制',
+            factList: [
+                {
+                    title: 'OFAC SDN名单状态',
+                    description: '在「OFAC特别指定国民名单」中查询到匹配记录',
+                    verificationTime: '2024年5月20日',
+                    listVersion: '2024-05-19',
+                    dataSource: 'U.S. Treasury OFAC SDN List',
+                    listItemId: 'SDN-2023-56789',
+                    publishDate: '2023年11月15日'
+                },
+                {
+                    title: 'BIS实体清单状态',
+                    description: '在「BIS实体清单」中查询到匹配记录',
+                    verificationTime: '2024年5月20日',
+                    dataSource: 'U.S. Department of Commerce BIS Entity List',
+                    listItemId: 'EL-2023-12345',
+                    effectiveDate: '2023年11月20日'
+                }
+            ]
+        },
+        {
+            name: '司法与诉讼记录',
+            factList: [
+                {
+                    title: 'OFAC SDN名单状态',
+                    description: '在「OFAC特别指定国民名单」中查询到匹配记录',
+                    verificationTime: '2024年5月20日',
+                    listVersion: '2024-05-19',
+                    dataSource: 'U.S. Treasury OFAC SDN List',
+                    listItemId: 'SDN-2023-56789',
+                    publishDate: '2023年11月15日'
+                }
+            ]
+        }
+    ]
+})
+
+
+// 获取报告预览数据
+// 轮询请求直到res.code==200
+const getReportPreview = () => {
+    console.log(reportReturnData.value.reportId, 'reportReturnData.reportId');
+
+    // 打开 loading
+    const loadingInstance = ElLoading.service({
+        lock: true,
+        text: '正在生成报告，请稍候...',
+        background: 'rgba(0, 0, 0, 0.7)'
+    });
+
+    const pollRequest = () => {
+        savelorReportsDetailed({
+            reportId: reportReturnData.value.reportId
+        }).then(res => {
+            if (res.code == 200) {
+                // 轮询成功，关闭 loading
+                loadingInstance.close();
+                reportPreviewData.value = res.data;
+                currentStep.value = 3;
+                console.log('报告数据获取成功', res);
+            } else {
+                // 如果不是200，继续轮询
+                console.log('等待报告生成...', res);
+                setTimeout(pollRequest, 3000); // 3秒后再次请求
+            }
+        }).catch(err => {
+            console.error('请求失败:', err);
+            // 发生错误时可以选择停止轮询或继续
+            // 如果决定停止轮询，可以在这里关闭 loading
+            // loadingInstance.close();
+            setTimeout(pollRequest, 3000); // 3秒后继续尝试
+        });
+    };
+
+    // 开始第一次请求
+    pollRequest();
+};
+
 // 企业名称（可以从第一步获取或从API获取）
 const companyName = ref('企业名称')
 
-// 计算报告维度文本
-const reportDimensionsText = computed(() => {
-    if (selectedReportType.value === 'general') {
-        return '企业身份与存续状态; 制裁与贸易管制; 金融与证券监管; 司法与诉讼记录; 商业行为与监管'
-    } else {
-        const dimensionLabels = selectedDimensions.value.map(val => {
-            const dimension = allDimensions.find(d => d.value === val)
-            return dimension ? dimension.label : ''
-        }).filter(Boolean)
-        return dimensionLabels.join('; ')
+// 获取维度名称列表（用于标题显示）
+const getDimensionNames = () => {
+    if (!reportPreviewData.value.dimensionDetails || reportPreviewData.value.dimensionDetails.length === 0) {
+        return ''
     }
-})
+    return reportPreviewData.value.dimensionDetails.map(d => d.companyName).join('; ')
+}
 
-// 判断是否包含制裁维度
-const hasSanctionsDimension = computed(() => {
-    if (selectedReportType.value === 'general') return true
-    return selectedDimensions.value.includes('sanctions')
-})
 
-// 判断是否包含司法维度
-const hasJudicialDimension = computed(() => {
-    if (selectedReportType.value === 'general') return true
-    return selectedDimensions.value.includes('judicial')
-})
 
 // 返回第二步
 const goBackToStep2 = () => {
@@ -442,13 +560,21 @@ onMounted(() => {
 
 .introduc {
     width: 100%;
-    height: calc(100vh - 15vh);
+    height: calc(100vh - 100px);
     color: #1D2129;
 }
 
 .introduc-one {
-    padding-top: 140px;
+    // padding-top: 140px;
     background-image: url('/img/introduc-one.png');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    >div {
+        width: 100%;
+        max-width: 1200px;
+    }
 
     .introduc-title {
         margin: auto;
@@ -720,7 +846,7 @@ onMounted(() => {
     font-size: 16px;
     color: #1D2129;
     cursor: pointer;
-    padding: 8px 16px;
+    padding: 6px 16px;
     border-radius: 8px;
     transition: all 0.3s ease;
     background-color: rgba(0, 0, 0, 0.05);
@@ -1003,6 +1129,7 @@ onMounted(() => {
     gap: 8px;
     font-size: 12px;
     color: #6C7C93;
+    margin: auto;
 }
 
 .hint-icon {
@@ -1039,7 +1166,92 @@ onMounted(() => {
     color: #6C7C93;
 }
 
+/* 报告内容区域 */
+.report-content {
+    margin-bottom: 40px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
+.dimension-section {
+    background: #F5F7FA;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dimension-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1D2129;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.verification-facts {
+    margin-top: 4px;
+}
+
+.facts-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1D2129;
+    margin-bottom: 16px;
+}
+
+.facts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fact-item {
+    background: #fff;
+    border-radius: 6px;
+    padding: 18px 20px;
+    border-left: 3px solid #2134DE;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.fact-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1D2129;
+    margin-bottom: 12px;
+}
+
+.fact-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.fact-detail {
+    font-size: 14px;
+    color: #1D2129;
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+.fact-meta {
+    font-size: 13px;
+    color: #6C7C93;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.no-facts {
+    font-size: 14px;
+    color: #9CA3AF;
+    text-align: center;
+    padding: 20px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px dashed #E5E7EB;
+}
 
 .preview-footer {
     display: flex;
@@ -1051,7 +1263,7 @@ onMounted(() => {
 .download-btn {
     min-width: 200px;
     height: 48px;
-    background: #0277BD;
+    background: #2134DE;
     border: none;
     border-radius: 8px;
     color: #fff;
@@ -1074,18 +1286,18 @@ onMounted(() => {
 .verify-new-btn {
     min-width: 200px;
     height: 48px;
-    background: #B3E5FC;
+    background: #E9EBFC;
     border: none;
     border-radius: 8px;
-    color: #0277BD;
+    color: #2134DE;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
 
     &:hover {
-        background: #81D4FA;
-        color: #01579B;
+        // background: #81D4FA;
+        // color: #01579B;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(2, 119, 189, 0.2);
     }
