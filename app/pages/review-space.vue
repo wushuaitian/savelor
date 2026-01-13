@@ -10,7 +10,7 @@
                 <!-- 输入框和按钮区域 -->
                 <div class="input-container flex align-center justify-center p-t-30">
                     <div class="input-wrapper flex align-center">
-                        <input type="text" class="space-input" placeholder="请输入项目名称" v-model="spaceName"
+                        <input type="text" class="space-input" placeholder="请输入公司名称" v-model="spaceName"
                             @focus="inputFocus" @blur="inputBlur" />
                     </div>
                 </div>
@@ -19,7 +19,7 @@
                 <div class="input-row-container flex align-center justify-center p-t-20">
                     <div class="input-row-wrapper flex align-center">
                         <!-- 州选择下拉框 -->
-                        <el-select v-model="selectedState" placeholder="弗罗里达州 (必选)" class="state-select"
+                        <el-select v-model="selectedState" placeholder="弗罗里达州" class="state-select"
                             popper-class="region-select-dropdown">
                             <el-option v-for="state in UsStateList" :key="state.code" :label="state.nameZh"
                                 :value="state.code" />
@@ -130,59 +130,78 @@
                     </button>
                 </div>
 
-                <div class="header-hint">
+                <div class="header-hint flex align-center m-auto text-12 b-r-8">
                     <span class="hint-icon">ℹ</span>
                     <span class="hint-text">本页面为报告内容预览。如需完整法律文件格式(含免责声明等),请下载完整报告。</span>
                 </div>
             </div>
 
-            <!-- 报告标题区域 -->
-            <div class="report-title-section">
-                <div class="report-dimension-title">
-                    专项报告维度: {{ getDimensionNames() }}
-                </div>
-                <div class="report-subject">
-                    核查主体: {{ reportPreviewData.companyName || companyName || '企业名称' }}
+            <div class="report-loading-overlay" v-if="isLoadingReport">
+                <div class="loading-spinner">
+                    <div class="spinner-circle"></div>
+                    <p class="loading-text">报告生成中...</p>
                 </div>
             </div>
+            <div v-else>
+                <!-- 报告标题区域 -->
+                <div class="report-title-section">
+                    <div class="report-dimension-title">
+                        {{ reportPreviewData.reportType }}
+                        <!-- : {{ getDimensionNames() }} -->
+                    </div>
+                    <div class="report-subject">
+                        核查主体: {{ reportPreviewData.companyName || companyName || '企业名称' }}
+                    </div>
+                </div>
 
-            <!-- 报告内容区域 -->
-            <div class="report-content">
-                <div v-for="(dimension, index) in reportPreviewData.dimensionDetails" :key="index"
-                    class="dimension-section">
-                    <div class="dimension-title">{{ dimension.dimensionName }}</div>
-                    <div class="verification-facts">
-                        <div class="facts-title">核查事实:</div>
-                        <div v-if="dimension.checkpointFacts && dimension.checkpointFacts.length > 0" class="facts-list">
-                            <div v-for="(fact, factIndex) in dimension.checkpointFacts" :key="factIndex" class="fact-item">
-                                <div class="fact-title">{{ fact.checkpointName }}</div>
-                                <div class="fact-content">
-                                    <div class="fact-detail">事实: {{ fact.factDescription }}</div>
-                                    <div v-if="fact.checkDate" class="fact-meta">
-                                        <span>核查时间: {{ fact.checkDate }}</span>
-                                        <!-- <span v-if="fact.listVersion"> (名单版本: {{ fact.listVersion }})</span> -->
+                <!-- 报告内容区域 -->
+                <div class="report-content">
+                    <div v-for="(dimension, index) in reportPreviewData.dimensionDetails" :key="index"
+                        class="dimension-section">
+                        <div class="dimension-title">{{ dimension.dimensionName }}</div>
+                        <div class="verification-facts">
+                            <div class="facts-title">核查事实:</div>
+                            <div v-if="dimension.checkpointFacts && dimension.checkpointFacts.length > 0"
+                                class="facts-list">
+                                <div v-for="(fact, factIndex) in dimension.checkpointFacts" :key="factIndex"
+                                    class="fact-item">
+                                    <div class="fact-title">{{ fact.checkpointName }}</div>
+                                    <div class="fact-content">
+                                        <div class="fact-detail">事实: {{ fact.factDescription }}</div>
+                                        <div v-if="fact.checkDate" class="fact-meta">
+                                            <span>核查时间: {{ fact.checkDate }}</span>
+                                            <!-- <span v-if="fact.listVersion"> (名单版本: {{ fact.listVersion }})</span> -->
+                                        </div>
+                                        <div v-if="fact.dataSource" class="fact-meta">数据源: {{ fact.dataSource }}</div>
+                                        <div v-if="fact.referenceId" class="fact-meta">参考标识: {{ fact.referenceId }}
+                                        </div>
+                                        <div v-if="fact.listPublishDate" class="fact-meta">名单发布日期: {{
+                                            fact.listPublishDate }}</div>
+                                        <div v-if="fact.restrictedItems" class="fact-meta">受限物项记录: {{
+                                            fact.restrictedItems }}</div>
+                                        <div v-if="fact.court" class="fact-meta">受理法院: {{ fact.court }} </div>
+                                        <div v-if="fact.penaltyReason" class="fact-meta">案件类型: {{ fact.penaltyReason }}
+                                        </div>
+                                        <div v-if="fact.penaltyDate" class="fact-meta">处罚日期: {{ fact.penaltyDate }}
+                                        </div>
+                                        <div v-if="fact.penaltyResult" class="fact-meta">处罚结果: {{ fact.penaltyResult }}
+                                        </div>
+                                        <div v-if="fact.filingDate" class="fact-meta">立案日期: {{ fact.filingDate }}</div>
+                                        <div v-if="fact.caseStatus" class="fact-meta">当前状态: {{ fact.caseStatus }}</div>
+
+
+                                        <div v-if="fact.timeWindowEnd" class="fact-meta">时间窗口: {{ fact.timeWindowStart
+                                        }} - {{ fact.timeWindowEnd }}</div>
+
                                     </div>
-                                    <div v-if="fact.dataSource" class="fact-meta">数据源: {{ fact.dataSource }}</div>
-                                    <div v-if="fact.referenceId" class="fact-meta">参考标识: {{ fact.referenceId }}</div>
-                                    <div v-if="fact.listPublishDate" class="fact-meta">名单发布日期: {{ fact.listPublishDate }}</div>
-                                    <div v-if="fact.restrictedItems" class="fact-meta">受限物项记录: {{ fact.restrictedItems }}</div>
-                                    <div v-if="fact.court" class="fact-meta">受理法院: {{ fact.court }} </div>
-                                    <div v-if="fact.penaltyReason" class="fact-meta">案件类型: {{ fact.penaltyReason }} </div>
-                                   <div v-if="fact.penaltyDate" class="fact-meta">处罚日期: {{ fact.penaltyDate }}</div>
-                                    <div v-if="fact.penaltyResult" class="fact-meta">处罚结果: {{ fact.penaltyResult }}</div>
-                                    <div v-if="fact.filingDate" class="fact-meta">立案日期: {{ fact.filingDate }}</div>
-                                    <div v-if="fact.caseStatus" class="fact-meta">当前状态: {{ fact.caseStatus }}</div>
-
-
-                                    <div v-if="fact.timeWindowEnd" class="fact-meta">时间窗口: {{ fact.timeWindowStart }} - {{ fact.timeWindowEnd }}</div>
-
                                 </div>
                             </div>
+                            <div v-else class="no-facts">暂无核查事实</div>
                         </div>
-                        <div v-else class="no-facts">暂无核查事实</div>
                     </div>
                 </div>
             </div>
+
 
             <!-- 底部操作按钮 -->
             <div class="preview-footer">
@@ -408,6 +427,8 @@ const generateReport = () => {
     currentStep.value = 3
 }
 
+const isLoadingReport = ref(true)
+
 // 第三步
 // 报告预览数据
 const reportPreviewData = ref({
@@ -456,25 +477,20 @@ const reportPreviewData = ref({
 // 获取报告预览数据
 // 轮询请求直到res.code==200
 const getReportPreview = () => {
+    isLoadingReport.value = true
+
     console.log(reportReturnData.value.reportId, 'reportReturnData.reportId');
 
-    // 打开 loading
-    const loadingInstance = ElLoading.service({
-        lock: true,
-        text: '正在生成报告，请稍候...',
-        background: 'rgba(0, 0, 0, 0.7)'
-    });
 
     const pollRequest = () => {
         savelorReportsDetailed({
             reportId: reportReturnData.value.reportId
         }).then(res => {
             if (res.code == 200) {
-                // 轮询成功，关闭 loading
-                loadingInstance.close();
                 reportPreviewData.value = res.data;
                 currentStep.value = 3;
                 console.log('报告数据获取成功', res);
+                isLoadingReport.value = false;
             } else {
                 // 如果不是200，继续轮询
                 console.log('等待报告生成...', res);
@@ -485,6 +501,7 @@ const getReportPreview = () => {
             // 发生错误时可以选择停止轮询或继续
             // 如果决定停止轮询，可以在这里关闭 loading
             // loadingInstance.close();
+            isLoadingReport.value = false;
             setTimeout(pollRequest, 3000); // 3秒后继续尝试
         });
     };
@@ -497,12 +514,12 @@ const getReportPreview = () => {
 const companyName = ref('企业名称')
 
 // 获取维度名称列表（用于标题显示）
-const getDimensionNames = () => {
-    if (!reportPreviewData.value.dimensionDetails || reportPreviewData.value.dimensionDetails.length === 0) {
-        return ''
-    }
-    return reportPreviewData.value.dimensionDetails.map(d => d.companyName).join('; ')
-}
+// const getDimensionNames = () => {
+//     if (!reportPreviewData.value.dimensionDetails || reportPreviewData.value.dimensionDetails.length === 0) {
+//         return ''
+//     }
+//     return reportPreviewData.value.dimensionDetails.map(d => d.companyName).join('; ')
+// }
 
 
 
@@ -878,7 +895,7 @@ onMounted(() => {
     flex: 1;
     min-width: 480px;
     max-width: 560px;
-    background: #fff;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 100%);
     border-radius: 16px;
     padding: 32px;
     border: 2px solid transparent;
@@ -912,13 +929,13 @@ onMounted(() => {
 
 .general-report-card {
     &::before {
-        background: linear-gradient(135deg, #FFE5B4 0%, #FFC0CB 100%);
+        // background: linear-gradient(135deg, #FFE5B4 0%, #FFC0CB 100%);
     }
 }
 
 .special-report-card {
     &::before {
-        background: linear-gradient(135deg, #B4E5FF 0%, #D4B4FF 100%);
+        // background: linear-gradient(135deg, #B4E5FF 0%, #D4B4FF 100%);
     }
 }
 
@@ -1124,19 +1141,19 @@ onMounted(() => {
 }
 
 .header-hint {
-    display: flex;
-    align-items: center;
     gap: 8px;
     font-size: 12px;
     color: #6C7C93;
-    margin: auto;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0px 0px 12px 1px rgba(17, 17, 17, 0.07);
+    padding: 10px 20px;
 }
 
 .hint-icon {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #03A9F4;
+    background: #2134DE;
     color: #fff;
     display: flex;
     align-items: center;
@@ -1304,6 +1321,48 @@ onMounted(() => {
 
     &:active {
         transform: translateY(0);
+    }
+}
+
+// 在 style 部分添加
+.report-loading-overlay {
+    width: 100%;
+    height: calc(100vh - 200px);
+    background-color: rgba(247, 248, 250, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+
+    .loading-spinner {
+        text-align: center;
+
+        .spinner-circle {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(33, 52, 222, 0.2);
+            border-top: 4px solid #2134DE;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .loading-text {
+            color: #2134DE;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
     }
 }
 </style>
