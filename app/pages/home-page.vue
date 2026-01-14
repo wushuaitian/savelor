@@ -8,7 +8,7 @@
                     基于官方数据源，快速识别美国公司的制裁、诉讼及合规状态
                     为您的商业决策提供事实依据。</div>
                 <div class="flex m-auto align-center justify-center p-t-50">
-                    <div class="enter b-r-40 m-r-30" @click="generateReport">生成报告</div>
+                    <div class="enter b-r-40 m-r-30" @click="generateReport('ReviewSpace')">生成报告</div>
                     <div class="view-report b-r-40" @click="downloadReport">下载完整样本报告</div>
                 </div>
             </div>
@@ -68,7 +68,18 @@
             <div class="four-content">
                 <div class="four-title text-bold-600 text-40">停止猜测，开始核查</div>
                 <div class="four-text text-bold-600 text-28">您的下一个商业决策值得更清晰的依据和更充足的信心。</div>
-                <div class="four-button" @click="generateReport">生成报告</div>
+                <div class="four-button" @click="generateReport('ReviewSpace')">生成报告</div>
+
+            </div>
+            <!-- 底部导航栏 -->
+            <div class="footer-nav">
+                <a href="#" class="nav-link">首页 |</a>
+                <a @click="generateReport('ReviewSpace')">生成报告 |</a>
+                <a class="nav-link" @click="generateReport('mySpace')">我的报告 |</a>
+                <a class="nav-link" @click="generateReport('problem')">帮助中心 |</a>
+                <a class="nav-link">隐私政策 |</a>
+                <a class="nav-link">服务条款 |</a>
+                <span class="copyright">© 2026 SAVELOR PTE. LTD.</span>
             </div>
         </div>
     </div>
@@ -139,8 +150,8 @@ const stopAutoPlay = () => {
     }
 };
 
-const generateReport = () => {
-    emit('spaceCreated', '', 'ReviewSpace');
+const generateReport = (name) => {
+    emit('spaceCreated', '', name);
 };
 const downloadReport = () => {
     ElMessage.warning('目前没有完整样本报告,请敬请期待！');
@@ -366,6 +377,7 @@ onUnmounted(() => {
 .introduc-four {
     height: calc(100vh - 100px);
     background: linear-gradient(180deg, #FFFFFF 0%, #F2F3FD 100%);
+    position: relative;
 
     .four-content {
         width: 100%;
@@ -379,12 +391,12 @@ onUnmounted(() => {
         text-align: center;
 
         .four-title {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .four-text {
             color: #6B7684;
-            margin-bottom: 30px;
+            margin-bottom: 60px;
             max-width: 800px;
         }
 
@@ -401,6 +413,36 @@ onUnmounted(() => {
                 transform: translateY(-2px);
                 box-shadow: 0 4px 12px rgba(43, 87, 255, 0.3);
             }
+        }
+
+
+    }
+
+    .footer-nav {
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        margin: auto;
+        padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        font-size: 14px;
+        color: #6B7684;
+
+        .nav-link {
+            color: #6B7684;
+            text-decoration: none;
+            transition: color 0.3s ease;
+
+            &:hover {
+                color: #2134DE;
+            }
+        }
+
+        .copyright {
+            color: #999;
         }
     }
 }
