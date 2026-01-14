@@ -327,9 +327,6 @@ const goToStep2 = () => {
             // emit('spaceCreated', res.data.id)
             // localStorage.setItem('workspaceId', res.data.id);
             currentDraftId.value = res.data.draftId;
-            console.log(res.data, '第二步res.data');
-            console.log('spaceCreated', currentDraftId.value)
-
             // 进入第二步
             currentStep.value = 2
             ElMessage.success(res.message);
@@ -411,8 +408,6 @@ const generateReport = () => {
         dimensions: selectedReportType.value === 'general' ? generalDimensions : selectedDimensions.value
     }
 
-    console.log('生成报告:', reportData)
-    console.log('第三步', currentDraftId.value)
 
     // TODO: 调用生成报告的API
     savelorReportsGenerate({
@@ -423,9 +418,6 @@ const generateReport = () => {
         // 显示返回的提示语
         if (res.code == 200) {
             reportReturnData.value = res.data;
-            console.log(res.data, 'res.data 生成选定报告');
-
-            console.log(reportReturnData.value, 'UsStateListUsStateList');
             getReportPreview()
         }
     }).catch(err => {
@@ -451,9 +443,6 @@ const reportPreviewData = ref({})
 const getReportPreview = () => {
     isLoadingReport.value = true
 
-    console.log(reportReturnData.value.reportId, 'reportReturnData.reportId');
-
-
     const pollRequest = () => {
         savelorReportsDetailed({
             reportId: reportReturnData.value.reportId
@@ -461,11 +450,9 @@ const getReportPreview = () => {
             if (res.code == 200) {
                 reportPreviewData.value = res.data;
                 currentStep.value = 3;
-                console.log('报告数据获取成功', res);
                 isLoadingReport.value = false;
             } else {
                 // 如果不是200，继续轮询
-                console.log('等待报告生成...', res);
                 setTimeout(pollRequest, 3000); // 3秒后再次请求
             }
         }).catch(err => {
@@ -533,7 +520,6 @@ const getUsStateList = () => {
         // 显示返回的提示语
         if (res.code == 200) {
             UsStateList.value = res.data;
-            console.log(UsStateList.value, 'UsStateListUsStateList');
         }
     }).catch(err => {
         console.error(err);

@@ -204,7 +204,6 @@ const parseDimensions = (dimensionsStr) => {
   if (!dimensionsStr) return []
   try {
     const dimensions = JSON.parse(dimensionsStr)
-    console.log(dimensions)
     return dimensions.map(dim => dimensionMap[dim] || dim)
   } catch (error) {
     console.error('解析维度失败:', error)
