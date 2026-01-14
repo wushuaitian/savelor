@@ -191,7 +191,7 @@
 
 
                                         <div v-if="fact.timeWindowEnd" class="fact-meta">时间窗口: {{ fact.timeWindowStart
-                                        }} - {{ fact.timeWindowEnd }}</div>
+                                            }} - {{ fact.timeWindowEnd }}</div>
 
                                     </div>
                                 </div>
@@ -227,6 +227,8 @@ import {
     savelorReportsGenerate,
     // 第三步 报告预览数据
     savelorReportsDetailed,
+    // 下载报告数据
+    savelorReportsDownload,
 } from "../../composables/login.ts";
 
 // 步骤管理
@@ -531,7 +533,27 @@ const goBackToStep2 = () => {
 // 下载完整报告
 const downloadReport = () => {
     ElMessage.success('正在下载完整报告...')
-    // TODO: 实现下载逻辑
+    savelorReportsDownload({
+        reportId: reportReturnData.value.reportId,
+        fileType: 'pdf'
+    }).then(res => {
+        let blob = new Blob([res], {
+            type: "application/vnd.ms-excel;charset=UTF-8",
+        });
+        let objUrl = URL.createObjectURL(blob);
+        let fileLink = document.createElement("a");
+        let fileName = `report_${reportReturnData.value.reportId}.pdf`;
+        let format = "pdf";
+        fileLink.href = objUrl;
+        fileLink.download = `${fileName}.${format}`;
+        fileLink.click();
+        window.URL.revokeObjectURL(blob);
+    }).catch(err => {
+        console.error(err);
+        // 显示错误提示
+        const errorMsg = err.response;
+        ElMessage.error(errorMsg);
+    })
 }
 
 // 核查新公司

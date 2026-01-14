@@ -3,33 +3,45 @@
     <div class="home">
         <!-- 介绍 -->
         <div class="introduc introduc-one bg-img">
-            <div class="introduc-title text-bold-600">视觉内容进入商业世界前的安全层。</div>
-            <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">查重・存证・维权 —— 一站式原创设计保护平台</div>
-            <div class="introduc-text-one p-t-20 text-16 text-bold-600 text-center">精准识别抄袭风险，锁定原创权属，让每一份创意都有专属 “保护盾”
-            </div>
-            <div class="flex m-auto align-center justify-center p-t-50">
-                <div class="enter b-r-40 m-r-30">进入</div>
-                <div class="view-report b-r-40">查看示例报告</div>
-            </div>
-        </div>
-        <!-- <div class="introduc introduc-two bg-img flex justify-center align-center m-r-20">
-            <div class="introduc-book book-one bg-img m-r-20 flex justify-end flex-column">
-            </div>
-            <div class="book-two bg-img m-r-20"></div>
-            <div class="introduc-book book-three bg-img"></div>
-        </div>
-
-        <div class="audience introduc">
-            <div class="audience-tab flex justify-around align-center">
-                <div class="tab-text text-18 text-bold-500" v-for="(el, idnex) in tabList" @click="tabClick(el.value)"
-                    :class="currentTab == el.value ? 'active-tab' : ''">
-                    {{ el.text }}
+            <div>
+                <div class="introduc-title text-bold-600">核查5大核心风险维度，提供决策事实依据</div>
+                <div class="introduc-text-one p-t-50 text-18 text-bold-600 text-center w-p-40 m-auto">
+                    基于官方数据源，快速识别美国公司的制裁、诉讼及合规状态
+                    为您的商业决策提供事实依据。</div>
+                <div class="flex m-auto align-center justify-center p-t-50">
+                    <div class="enter b-r-40 m-r-30">生成报告</div>
+                    <div class="view-report b-r-40">下载完整样本报告</div>
                 </div>
-                 <div class="audience-content">
-
-                 </div>
             </div>
-        </div> -->
+        </div>
+        <div class="introduc introduc-two bg-img">
+            <div class="introduc-two-container">
+                <h2 class="introduc-two-title text-bold-600">为什么使用SAVEIOR?</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3 class="feature-title text-bold-600">官方数据源</h3>
+                        <p class="feature-desc">直接对接OFAC、BIS、SEC及各州政府等权威数据库，确保信息准确可追溯。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-title text-bold-600">分钟级报告</h3>
+                        <p class="feature-desc">将传统耗时数日的尽调压缩至5-10分钟，自动化生成结构化报告。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-title text-bold-600">专业输出</h3>
+                        <p class="feature-desc">报告格式清晰规范，可直接用于尽调文件、内部决策或规合规备案。</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="feature-title text-bold-600">成本可控</h3>
+                        <p class="feature-desc">按需使用，定价透明。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="introduc introduc-three">
+
+        </div>
+        
     </div>
 </template>
 
@@ -38,31 +50,6 @@ import { ref } from 'vue';
 
 const currentTab = ref('ip')
 
-const tabList = ref([
-    {
-        value: 'ip',
-        text: 'IP人员'
-    },
-    {
-        value: 'designer',
-        text: '设计师'
-    },
-    {
-        value: 'student',
-        text: '学生'
-    },
-    {
-        value: 'enterprise',
-        text: '企业'
-    },
-    {
-        value: 'contestants',
-        text: '参赛选手'
-    }
-])
-const tabClick = (el: string) => {
-    currentTab.value = el;
-};
 </script>
 
 <style scoped lang="scss">
@@ -75,20 +62,27 @@ const tabClick = (el: string) => {
 
 .introduc {
     width: 100%;
-    height: calc(100vh - 15vh);
+    height: calc(100vh - 100px);
     color: #1D2129;
 
 }
 
 .introduc-one {
-    padding-top: 140px;
     background-image: url('/img/introduc-one.png');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    >div {
+        width: 100%;
+        max-width: 1200px;
+    }
 
     .introduc-title {
         margin: auto;
-        width: 700px;
+        width: 70%;
         text-align: center;
-        font-size: 80px;
+        font-size: 60px;
     }
 
     .enter {
@@ -105,32 +99,62 @@ const tabClick = (el: string) => {
 }
 
 .introduc-two {
-    padding-top: 140px;
     background-image: url('/img/introduc-two.png');
-    background-color: #fff;
-    margin: auto;
+    background-color: #F5F6FA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
 
-    .introduc-book {
-        width: 450.18px;
-        height: 480.09px;
+    .introduc-two-container {
+        width: 100%;
+        max-width: 1200px;
     }
 
-    .book-one {
-        // background-image: url('/img/book-one.png');
+    .introduc-two-title {
+        font-size: 48px;
+        color: #1D2129;
+        text-align: center;
+        margin-bottom: 80px;
     }
 
-    .book-two {
-        width: 390px;
-        height: 430.09px;
-        // background-image: url('/img/book-two.png');
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px 60px;
     }
 
-    .book-three {
-        // background-image: url('/img/book-three.png');
+    .feature-card {
+        border-radius: 16px;
+        padding: 20px;
+        height: 20vh;
+        background: rgba(255, 255, 255, 0.62);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
     }
 
+    .feature-title {
+        font-size: 24px;
+        color: #1D2129;
+        margin-bottom: 20px;
+    }
+
+    .feature-desc {
+        font-size: 16px;
+        color: #4E5969;
+        line-height: 1.6;
+        margin: 0;
+    }
 }
 
+.introduc-three{
+    height: calc(100vh - 100px);
+    
+}
 
 .audience {
     padding-top: 100px;
@@ -154,6 +178,6 @@ const tabClick = (el: string) => {
         background-color: #E3E3FF;
     }
 
-    .audience-content{}
+    .audience-content {}
 }
 </style>

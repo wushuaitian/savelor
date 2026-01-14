@@ -265,6 +265,25 @@ export function savelorReportsDetailed(data: RequestParams) {
     })
 }
 
+/**
+ * 
+ * 下载报告文件（txt-pdf-docx）
+ * @param data 
+ * @returns 
+ */
+export function savelorReportsDownload(data: RequestParams) {
+    return request({
+        url: `/savelor/reports/${data.reportId}/download`,
+        method: 'get',
+        params: data,
+        responseType: "blob",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    })
+}
+
+
 // 创建空间
 export function savelorSpaces(data: RequestParams) {
     return request({

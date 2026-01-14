@@ -8,9 +8,9 @@
             </div>
             <!-- 导航栏菜单 -->
             <div class="naviga-menu flex align-center">
-                <!-- <div @click="navigaJump('home')" class="menu-text" :class="{ 'menu-active': activeMenu == 'home' }">
+                <div @click="navigaJump('home')" class="menu-text" :class="{ 'menu-active': activeMenu == 'home' }">
                     首页
-                </div> -->
+                </div>
                 <div @click="navigaJump('ReviewSpace')" class="menu-text"
                     :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
                     生成报告
@@ -117,10 +117,10 @@
                 <div class="close-btn" @click="toggleMobileMenu">×</div>
             </div>
             <div class="mobile-menu-content">
-                <!-- <div @click="handleMobileMenuClick('home')" class="mobile-menu-item"
+                <div @click="handleMobileMenuClick('home')" class="mobile-menu-item"
                     :class="{ 'menu-active': activeMenu == 'home' }">
                     首页
-                </div> -->
+                </div>
                 <div @click="handleMobileMenuClick('ReviewSpace')" class="mobile-menu-item"
                     :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
                     生成报告
@@ -601,9 +601,9 @@ const msgApi = () => {
 };
 
 //  组件切换
-const component = shallowRef(ReviewSpace);
+const component = shallowRef(Home);
 
-const activeMenu = ref('ReviewSpace');
+const activeMenu = ref('home');
 
 // 当前空间ID
 const currentSpaceId = ref(null);
