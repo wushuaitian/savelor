@@ -1,4 +1,3 @@
-<!-- 首页 -->
 <template>
     <div class="home">
         <!-- 介绍 -->
@@ -42,25 +41,29 @@
 
         </div>
         <div class="introduc introduc-four">
-            <div class="four-content flex ">
+            <div class="four-content">
                 <div class="four-title text-bold-600 text-40">停止猜测，开始核查</div>
                 <div class="four-text text-bold-600 text-28">您的下一个商业决策值得更清晰的依据和更充足的信心。</div>
-                <div class="four-button text-center">生成报告</div>
+                <div class="four-button" @click="generateReport">生成报告</div>
             </div>
         </div>
-
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
 const emit = defineEmits(['spaceCreated']);
+const currentTab = ref('ip');
 
 const generateReport = () => {
-    emit('spaceCreated', '', 'ReviewSpace')
-}
-const currentTab = ref('ip')
+    emit('spaceCreated', '', 'ReviewSpace');
+};
 
+onMounted(() => {
+    // 确保组件完全挂载后再执行任何可能影响 DOM 的操作
+    console.log('Home page mounted');
+});
 </script>
 
 <style scoped lang="scss">
@@ -75,7 +78,6 @@ const currentTab = ref('ip')
     width: 100%;
     height: calc(100vh - 100px);
     color: #1D2129;
-
 }
 
 .introduc-one {
@@ -100,7 +102,6 @@ const currentTab = ref('ip')
         color: #fff;
         padding: 10px 30px;
         background-color: #1D2129;
-
     }
 
     .view-report {
@@ -164,32 +165,46 @@ const currentTab = ref('ip')
 
 .introduc-three {
     height: calc(100vh - 100px);
-
 }
 
 .introduc-four {
     height: calc(100vh - 100px);
     background: linear-gradient(180deg, #FFFFFF 0%, #F2F3FD 100%);
-    border-top: 1px solid red;
 
     .four-content {
         width: 100%;
+        max-width: 1200px;
         margin: 0 auto;
-        /* 改为 0 auto 以居中对齐 */
         height: 100%;
-
-        .four-title {}
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        
+        .four-title {
+            margin-bottom: 20px;
+        }
 
         .four-text {
             color: #6B7684;
-            padding: 20px 0px;
+            margin-bottom: 30px;
+            max-width: 800px;
         }
 
         .four-button {
-            padding: 10px 50px;
+            padding: 15px 50px;
             color: #FFFFFF;
             background: linear-gradient(126deg, #5690FF 0%, #2B57FF 100%);
             border-radius: 50px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(43, 87, 255, 0.3);
+            }
         }
     }
 }
