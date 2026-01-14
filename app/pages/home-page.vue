@@ -9,7 +9,7 @@
                     基于官方数据源，快速识别美国公司的制裁、诉讼及合规状态
                     为您的商业决策提供事实依据。</div>
                 <div class="flex m-auto align-center justify-center p-t-50">
-                    <div class="enter b-r-40 m-r-30">生成报告</div>
+                    <div class="enter b-r-40 m-r-30" @click="generateReport">生成报告</div>
                     <div class="view-report b-r-40">下载完整样本报告</div>
                 </div>
             </div>
@@ -41,13 +41,24 @@
         <div class="introduc introduc-three">
 
         </div>
-        
+        <div class="introduc introduc-four">
+            <div class="four-content flex ">
+                <div class="four-title text-bold-600 text-40">停止猜测，开始核查</div>
+                <div class="four-text text-bold-600 text-28">您的下一个商业决策值得更清晰的依据和更充足的信心。</div>
+                <div class="four-button text-center">生成报告</div>
+            </div>
+        </div>
+
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+const emit = defineEmits(['spaceCreated']);
 
+const generateReport = () => {
+    emit('spaceCreated', '', 'ReviewSpace')
+}
 const currentTab = ref('ip')
 
 </script>
@@ -151,9 +162,36 @@ const currentTab = ref('ip')
     }
 }
 
-.introduc-three{
+.introduc-three {
     height: calc(100vh - 100px);
-    
+
+}
+
+.introduc-four {
+    height: calc(100vh - 100px);
+    background: linear-gradient(180deg, #FFFFFF 0%, #F2F3FD 100%);
+    border-top: 1px solid red;
+
+    .four-content {
+        width: 100%;
+        margin: 0 auto;
+        /* 改为 0 auto 以居中对齐 */
+        height: 100%;
+
+        .four-title {}
+
+        .four-text {
+            color: #6B7684;
+            padding: 20px 0px;
+        }
+
+        .four-button {
+            padding: 10px 50px;
+            color: #FFFFFF;
+            background: linear-gradient(126deg, #5690FF 0%, #2B57FF 100%);
+            border-radius: 50px;
+        }
+    }
 }
 
 .audience {

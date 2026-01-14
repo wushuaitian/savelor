@@ -2,7 +2,7 @@
     <div id="app">
         <!-- 导航栏 -->
         <div class="navigation flex align-center justify-between">
-            <div class="logo flex align-center"  style="width: 205px;">
+            <div class="logo flex align-center" style="width: 205px;">
                 <img src="/img/logo.png" alt="" class="logo-img">
                 <div class="logo-text">SAVELOR</div>
             </div>
@@ -55,18 +55,17 @@
                                 </template>
 
 
-                                <el-dropdown-item v-else class="msg-item" v-for="(item, index) in msgApiList"
-                                    :key="index">
-                                    <img :src="item.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
-                                        alt="" class="msg-item-img">
-                                    <div class="msg-text">{{ item.message }}</div>
-                                    <div class="msg-time">{{ formatDateTime(item.createdAt) }}</div>
-                                </el-dropdown-item>
+<el-dropdown-item v-else class="msg-item" v-for="(item, index) in msgApiList" :key="index">
+    <img :src="item.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" alt=""
+        class="msg-item-img">
+    <div class="msg-text">{{ item.message }}</div>
+    <div class="msg-time">{{ formatDateTime(item.createdAt) }}</div>
+</el-dropdown-item>
 
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </div> -->
+</el-dropdown-menu>
+</template>
+</el-dropdown>
+</div> -->
                 <div v-if="!isLoggedIn" class="flex align-center">
                     <div class="loin m-r-10 text-bold-500" @click="loginOpen('login')">登录</div>
                     <div class="sign text-bold-500" @click="loginOpen('register')">注册</div>
@@ -158,7 +157,8 @@
                 </div>
             </div>
         </div>
-        <component :is="component" ref="reviewSpaceRef" :spaceId="currentSpaceId" @spaceCreated="handleSpaceCreated">
+        <component :is="component" ref="reviewSpaceRef" :spaceId="currentSpaceId" @spaceCreated="handleSpaceCreated"
+            @showLoginModal="handleShowLoginModal">
         </component>
     </div>
 
@@ -177,23 +177,23 @@
                 <el-input v-model="formLabelAlign.password" type="password" placeholder="请输入你的密码" show-password />
             </el-form-item>
             <el-form-item v-if="curretnDialog === 'register'" label="确认密码" label-position="top" prop="confirmPassword">
-                <el-input v-model="formLabelAlign.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
+                <el-input v-model="formLabelAlign.confirmPassword" type="password" placeholder="请再次输入密码"
+                    show-password />
             </el-form-item>
             <el-form-item v-if="curretnDialog === 'register'" label="图形验证码" label-position="top" prop="captcha">
                 <div class="captcha-wrapper">
-                    <el-input
-                        v-model="formLabelAlign.captcha"
-                        placeholder="请输入验证码"
-                        class="captcha-input"
-                    />
+                    <el-input v-model="formLabelAlign.captcha" placeholder="请输入验证码" class="captcha-input" />
                     <div class="captcha-image" @click="fetchCaptcha">
                         <img v-if="captchaImage" :src="captchaImage" alt="验证码" />
-                        <el-icon v-else class="is-loading"><loading /></el-icon>
+                        <el-icon v-else class="is-loading">
+                            <loading />
+                        </el-icon>
                     </div>
                 </div>
             </el-form-item>
             <el-form-item label-position="top">
-                <el-button class="w-p-100 login-submit-btn" type="primary" @click="loginButton">{{ curretnDialog === 'register' ? '注册' : '登录' }}</el-button>
+                <el-button class="w-p-100 login-submit-btn" type="primary" @click="loginButton">{{ curretnDialog ===
+                    'register' ? '注册' : '登录' }}</el-button>
             </el-form-item>
             <el-form-item label-position="top">
                 <div class="text-button" v-if="curretnDialog == 'login'" @click="loginOpen('register')">还没有账号? 立即注册
@@ -212,12 +212,7 @@
             </div>
             <div class="edit-dialog-content">
                 <div class="edit-dialog-label">用户名</div>
-                <input
-                    v-model="editUsernameValue"
-                    type="text"
-                    class="edit-dialog-input"
-                    placeholder="请输入用户名称"
-                />
+                <input v-model="editUsernameValue" type="text" class="edit-dialog-input" placeholder="请输入用户名称" />
             </div>
             <div class="edit-dialog-footer">
                 <button class="edit-dialog-cancel-btn" @click="closeEditUsernameDialog">取消</button>
@@ -235,26 +230,14 @@
             </div>
             <div class="edit-dialog-content edit-password-content">
                 <div class="edit-dialog-label">原始密码</div>
-                <input
-                    v-model="editPasswordData.oldPassword"
-                    type="password"
-                    class="edit-dialog-input"
-                    placeholder="请输入原始密码"
-                />
+                <input v-model="editPasswordData.oldPassword" type="password" class="edit-dialog-input"
+                    placeholder="请输入原始密码" />
                 <div class="edit-dialog-label" style="margin-top: 16px;">新密码</div>
-                <input
-                    v-model="editPasswordData.newPassword"
-                    type="password"
-                    class="edit-dialog-input"
-                    placeholder="请输入新密码"
-                />
+                <input v-model="editPasswordData.newPassword" type="password" class="edit-dialog-input"
+                    placeholder="请输入新密码" />
                 <div class="edit-dialog-label" style="margin-top: 16px;">确认密码</div>
-                <input
-                    v-model="editPasswordData.confirmPassword"
-                    type="password"
-                    class="edit-dialog-input"
-                    placeholder="请再次输入新密码"
-                />
+                <input v-model="editPasswordData.confirmPassword" type="password" class="edit-dialog-input"
+                    placeholder="请再次输入新密码" />
             </div>
             <div class="edit-dialog-footer">
                 <button class="edit-dialog-cancel-btn" @click="closeEditPasswordDialog">取消</button>
@@ -508,7 +491,7 @@ const confirmEditPassword = async () => {
                 username: ''
             };
             userMenuOpen.value = false;
-        }else{
+        } else {
             ElMessage.error(res.message);
         }
     } catch (error) {
@@ -609,9 +592,9 @@ const activeMenu = ref('home');
 const currentSpaceId = ref(null);
 
 // 处理空间创建成功事件
-const handleSpaceCreated = (spaceId) => {
+const handleSpaceCreated = (spaceId,address) => {
     currentSpaceId.value = spaceId;
-    navigaJump('companyMaterial');
+    navigaJump(address);
 };
 
 // 创建一个 ref 来引用 ReviewSpace 组件
@@ -763,6 +746,10 @@ const captchaImage = ref('');
 const captchaId = ref('');
 const captchaTimer = ref(null);
 const captchaExpiresIn = ref(0);
+
+const handleShowLoginModal = () => {
+    loginOpen('login');
+};
 
 // 获取验证码
 const fetchCaptcha = async () => {
@@ -1115,6 +1102,7 @@ body {
 
     .naviga-button {
         margin-right: 20px;
+
         .loin {
             padding: 10px 32px;
             border-radius: 26px;
@@ -1218,7 +1206,7 @@ body {
                         box-sizing: border-box;
                         overflow: hidden;
 
-                        > span:not(.edit-text) {
+                        >span:not(.edit-text) {
                             overflow: hidden;
                             text-overflow: ellipsis;
                             white-space: nowrap;

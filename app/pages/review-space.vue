@@ -240,7 +240,7 @@ const spaceName = ref('')
 const selectedState = ref('')
 // DUNS编号
 const dunsNumber = ref('')
-const emit = defineEmits(['spaceCreated']);
+const emit = defineEmits(['spaceCreated', 'showLoginModal']);
 
 // 报告类型选择
 const selectedReportType = ref('') // 'general' 或 'special'
@@ -289,11 +289,21 @@ const inputBlur = () => {
     // 可以添加失焦时的样式变化
 }
 
+
 // 进入第二步
 const goToStep2 = () => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) {
+        emit('showLoginModal');
+        ElMessage.warning('请先登录后再继续操作');
+        // ElMessage.warning('请先登录后再继续操作');
+        // 如果你有路由实例，可以跳转到登录页
+        // router.push('/login');
+        return;
+    }
     if (!canCreate.value) {
         if (!spaceName.value.trim()) {
-            ElMessage.warning('请输入项目名称')
+            ElMessage.warning('请输入公司名称')
             return
         }
         // if (!selectedState.value) {
@@ -433,47 +443,7 @@ const isLoadingReport = ref(true)
 
 // 第三步
 // 报告预览数据
-const reportPreviewData = ref({
-    companyName: '公司名称',
-    dimensionList: [
-        {
-            name: '制裁与贸易管制',
-            factList: [
-                {
-                    title: 'OFAC SDN名单状态',
-                    description: '在「OFAC特别指定国民名单」中查询到匹配记录',
-                    verificationTime: '2024年5月20日',
-                    listVersion: '2024-05-19',
-                    dataSource: 'U.S. Treasury OFAC SDN List',
-                    listItemId: 'SDN-2023-56789',
-                    publishDate: '2023年11月15日'
-                },
-                {
-                    title: 'BIS实体清单状态',
-                    description: '在「BIS实体清单」中查询到匹配记录',
-                    verificationTime: '2024年5月20日',
-                    dataSource: 'U.S. Department of Commerce BIS Entity List',
-                    listItemId: 'EL-2023-12345',
-                    effectiveDate: '2023年11月20日'
-                }
-            ]
-        },
-        {
-            name: '司法与诉讼记录',
-            factList: [
-                {
-                    title: 'OFAC SDN名单状态',
-                    description: '在「OFAC特别指定国民名单」中查询到匹配记录',
-                    verificationTime: '2024年5月20日',
-                    listVersion: '2024-05-19',
-                    dataSource: 'U.S. Treasury OFAC SDN List',
-                    listItemId: 'SDN-2023-56789',
-                    publishDate: '2023年11月15日'
-                }
-            ]
-        }
-    ]
-})
+const reportPreviewData = ref({})
 
 
 // 获取报告预览数据
@@ -514,16 +484,6 @@ const getReportPreview = () => {
 
 // 企业名称（可以从第一步获取或从API获取）
 const companyName = ref('企业名称')
-
-// 获取维度名称列表（用于标题显示）
-// const getDimensionNames = () => {
-//     if (!reportPreviewData.value.dimensionDetails || reportPreviewData.value.dimensionDetails.length === 0) {
-//         return ''
-//     }
-//     return reportPreviewData.value.dimensionDetails.map(d => d.companyName).join('; ')
-// }
-
-
 
 // 返回第二步
 const goBackToStep2 = () => {
