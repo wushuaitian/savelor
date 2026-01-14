@@ -9,7 +9,7 @@
                     为您的商业决策提供事实依据。</div>
                 <div class="flex m-auto align-center justify-center p-t-50">
                     <div class="enter b-r-40 m-r-30" @click="generateReport">生成报告</div>
-                    <div class="view-report b-r-40">下载完整样本报告</div>
+                    <div class="view-report b-r-40" @click="downloadReport">下载完整样本报告</div>
                 </div>
             </div>
         </div>
@@ -46,30 +46,18 @@
 
                 <!-- 中间轮播点 -->
                 <div class="carousel-dots">
-                    <div
-                        v-for="(item, index) in carouselItems"
-                        :key="index"
-                        class="carousel-dot"
-                        :class="{ active: currentSlide === index }"
-                        @click="goToSlide(index)"
-                    ></div>
+                    <div v-for="(item, index) in carouselItems" :key="index" class="carousel-dot"
+                        :class="{ active: currentSlide === index }" @click="goToSlide(index)"></div>
                 </div>
 
                 <!-- 右侧步骤说明 -->
                 <div class="carousel-steps">
-                    <div
-                        v-for="(item, index) in carouselItems"
-                        :key="index"
-                        class="step-item"
-                        @click="goToSlide(index)"
-                    >
+                    <div v-for="(item, index) in carouselItems" :key="index" class="step-item"
+                        @click="goToSlide(index)">
                         <div class="step-icon">
                             <img :src="currentSlide === index ? item.selectedIcon : item.icon" :alt="item.title" />
                         </div>
-                        <div
-                            class="step-text"
-                            :class="{ selected: currentSlide === index }"
-                        >
+                        <div class="step-text" :class="{ selected: currentSlide === index }">
                             {{ item.title }}
                         </div>
                     </div>
@@ -88,6 +76,8 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ElMessage } from 'element-plus'
+
 
 const emit = defineEmits(['spaceCreated']);
 const currentTab = ref('ip');
@@ -151,6 +141,9 @@ const stopAutoPlay = () => {
 
 const generateReport = () => {
     emit('spaceCreated', '', 'ReviewSpace');
+};
+const downloadReport = () => {
+    ElMessage.warning('目前没有完整样本报告,请敬请期待！');
 };
 
 onMounted(() => {
@@ -220,7 +213,7 @@ onUnmounted(() => {
 
     .introduc-two-container {
         width: 100%;
-        max-width: 1200px;
+        max-width: 80%;
     }
 
     .introduc-two-title {
@@ -268,7 +261,7 @@ onUnmounted(() => {
     background: #FFFFFF;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
 
     .carousel-container {
         display: flex;
@@ -284,7 +277,7 @@ onUnmounted(() => {
             justify-content: center;
 
             img {
-                width: 680px;
+                width: 100%;
                 height: 843px;
                 object-fit: contain;
             }
@@ -384,7 +377,7 @@ onUnmounted(() => {
         justify-content: center;
         align-items: center;
         text-align: center;
-        
+
         .four-title {
             margin-bottom: 20px;
         }
@@ -403,7 +396,7 @@ onUnmounted(() => {
             font-size: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
-            
+
             &:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 4px 12px rgba(43, 87, 255, 0.3);
