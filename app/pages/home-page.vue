@@ -38,7 +38,43 @@
         </div>
 
         <div class="introduc introduc-three">
+            <div class="carousel-container">
+                <!-- 左侧展示图片 -->
+                <div class="carousel-image">
+                    <img :src="currentDisplayImage" alt="展示图片" />
+                </div>
 
+                <!-- 中间轮播点 -->
+                <div class="carousel-dots">
+                    <div
+                        v-for="(item, index) in carouselItems"
+                        :key="index"
+                        class="carousel-dot"
+                        :class="{ active: currentSlide === index }"
+                        @click="goToSlide(index)"
+                    ></div>
+                </div>
+
+                <!-- 右侧步骤说明 -->
+                <div class="carousel-steps">
+                    <div
+                        v-for="(item, index) in carouselItems"
+                        :key="index"
+                        class="step-item"
+                        @click="goToSlide(index)"
+                    >
+                        <div class="step-icon">
+                            <img :src="currentSlide === index ? item.selectedIcon : item.icon" :alt="item.title" />
+                        </div>
+                        <div
+                            class="step-text"
+                            :class="{ selected: currentSlide === index }"
+                        >
+                            {{ item.title }}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="introduc introduc-four">
             <div class="four-content">
@@ -50,11 +86,68 @@
     </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const emit = defineEmits(['spaceCreated']);
 const currentTab = ref('ip');
+
+// 轮播图数据
+const carouselItems = [
+    {
+        displayImage: '/img/one-display.png',
+        icon: '/img/one.png',
+        selectedIcon: '/img/one-selected.png',
+        title: '输入公司信息'
+    },
+    {
+        displayImage: '/img/two-display.png',
+        icon: '/img/two.png',
+        selectedIcon: '/img/two-selected.png',
+        title: '选择报告类型'
+    },
+    {
+        displayImage: '/img/three-display.png',
+        icon: '/img/three.png',
+        selectedIcon: '/img/three-selected.png',
+        title: '生成选定报告'
+    }
+];
+
+// 当前幻灯片索引
+const currentSlide = ref(0);
+// 轮播定时器
+const carouselTimer = ref(null);
+
+// 当前展示的图片
+const currentDisplayImage = computed(() => {
+    return carouselItems[currentSlide.value].displayImage;
+});
+
+// 切换到指定幻灯片
+const goToSlide = (index) => {
+    currentSlide.value = index;
+};
+
+// 下一张幻灯片
+const nextSlide = () => {
+    currentSlide.value = (currentSlide.value + 1) % carouselItems.length;
+};
+
+// 启动自动轮播
+const startAutoPlay = () => {
+    carouselTimer.value = window.setInterval(() => {
+        nextSlide();
+    }, 4000); // 每4秒切换一次
+};
+
+// 停止自动轮播
+const stopAutoPlay = () => {
+    if (carouselTimer.value) {
+        clearInterval(carouselTimer.value);
+        carouselTimer.value = null;
+    }
+};
 
 const generateReport = () => {
     emit('spaceCreated', '', 'ReviewSpace');
@@ -63,6 +156,13 @@ const generateReport = () => {
 onMounted(() => {
     // 确保组件完全挂载后再执行任何可能影响 DOM 的操作
     console.log('Home page mounted');
+    // 启动自动轮播
+    startAutoPlay();
+});
+
+onUnmounted(() => {
+    // 组件卸载时清除定时器
+    stopAutoPlay();
 });
 </script>
 
@@ -165,6 +265,109 @@ onMounted(() => {
 
 .introduc-three {
     height: calc(100vh - 100px);
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .carousel-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 100px;
+
+        // 左侧展示图片
+        .carousel-image {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            img {
+                width: 680px;
+                height: 843px;
+                object-fit: contain;
+            }
+        }
+
+        // 中间轮播点
+        .carousel-dots {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            .carousel-dot {
+                width: 14px;
+                height: 14px;
+                border-radius: 7px;
+                background: #E9EBFC;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &.active {
+                    width: 14px;
+                    height: 34px;
+                    background: #2134DE;
+                    border-radius: 7px;
+                }
+
+                &:hover:not(.active) {
+                    background: #C8CBF0;
+                }
+            }
+        }
+
+        // 右侧步骤说明
+        .carousel-steps {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+
+            .step-item {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                cursor: pointer;
+                transition: transform 0.2s ease;
+
+                &:hover {
+                    transform: translateX(5px);
+                }
+
+                .step-icon {
+                    width: 48px;
+                    height: 48px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain;
+                    }
+                }
+
+                .step-text {
+                    width: 240px;
+                    height: 56px;
+                    font-family: PingFangSC, PingFang SC;
+                    font-weight: 600;
+                    font-size: 30px;
+                    color: #6B7684;
+                    line-height: 56px;
+                    text-align: left;
+                    font-style: normal;
+                    transition: color 0.3s ease;
+
+                    &.selected {
+                        color: #1D2129;
+                    }
+                }
+            }
+        }
+    }
 }
 
 .introduc-four {
