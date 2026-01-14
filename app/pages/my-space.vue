@@ -35,7 +35,7 @@
     </div>
 
     <!-- 卡片模块 -->
-    <div class="card-module">
+    <div v-loading="loading" class="card-module" element-loading-text="加载中...">
       <!-- 空数据状态 -->
       <el-empty v-if="!loading && cardList.length === 0" description="暂无报告数据" :image-size="120" />
       
@@ -65,7 +65,7 @@
           <!-- 第三行：类型标签 -->
           <div class="card-tags">
             <div 
-              v-for="(tag, tagIndex) in parseDimensions(card.selectedDimensions).slice(0, 3)" 
+              v-for="(tag, tagIndex) in parseDimensions(card.selectedDimensions)" 
               :key="tagIndex"
               class="tag-item"
             >
@@ -93,6 +93,7 @@
               :class="{ 'hover-download': hoverCardId === index && hoveredButton === 'download' }"
               @mouseenter="hoveredButton = 'download'"
               @mouseleave="hoveredButton = null"
+              @click="downloadReport(card.reportId)"
             >
               <img :src="hoverCardId === index && hoveredButton === 'download' ? '/img/downloadH.png' : '/img/download.png'" alt="下载" />
               <span>下载</span>
@@ -157,6 +158,11 @@ import { ElMessage } from 'element-plus'
 import { ref, reactive, onMounted, shallowRef } from 'vue'
 import { reportsMy, reportsDelete } from '../../composables/msg'
 import MyReportPreview from './my-report-preview.vue'
+// 接口
+import {
+     // 下载报告数据
+    savelorReportsDownload,
+} from "../../composables/login.ts";
 
 // 组件切换
 const component = shallowRef('list')
@@ -198,6 +204,7 @@ const parseDimensions = (dimensionsStr) => {
   if (!dimensionsStr) return []
   try {
     const dimensions = JSON.parse(dimensionsStr)
+    console.log(dimensions)
     return dimensions.map(dim => dimensionMap[dim] || dim)
   } catch (error) {
     console.error('解析维度失败:', error)
@@ -243,10 +250,14 @@ const fetchReports = async () => {
       const list = res.data.list || []
       list.forEach(item => cardList.push(item))
       total.value = res.data.total || 0
+    } else {
+      ElMessage.error(res.message || '获取报告列表失败')
     }
     console.log(cardList)
   } catch (error) {
     console.error('获取报告列表失败:', error)
+    const errorMsg = error?.response?.data?.message || error?.message || '获取报告列表失败，请稍后重试'
+    ElMessage.error(errorMsg)
   } finally {
     loading.value = false
   }
@@ -306,7 +317,31 @@ const viewReport = (reportId) => {
   currentReportId.value = reportId
   component.value = 'preview'
 }
-
+// 下载完整报告
+const downloadReport = (reportId) => {
+    ElMessage.success('正在下载完整报告...')
+    savelorReportsDownload({
+        reportId: reportId,
+        fileType: 'pdf'
+    }).then(res => {
+        let blob = new Blob([res], {
+            type: "application/vnd.ms-excel;charset=UTF-8",
+        });
+        let objUrl = URL.createObjectURL(blob);
+        let fileLink = document.createElement("a");
+        let fileName = `report_${reportId}.pdf`;
+        let format = "pdf";
+        fileLink.href = objUrl;
+        fileLink.download = `${fileName}.${format}`;
+        fileLink.click();
+        window.URL.revokeObjectURL(blob);
+    }).catch(err => {
+        console.error(err);
+        // 显示错误提示
+        const errorMsg = err.response;
+        ElMessage.error(errorMsg);
+    })
+}
 // 初始化加载数据
 onMounted(() => {
   fetchReports()
@@ -433,18 +468,36 @@ onMounted(() => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  
+  min-height: 200px;
+  position: relative;
+
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: #E4E5EA;
     border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: transparent;
+  }
+
+  :deep(.el-loading-mask) {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+  }
+
+  :deep(.el-loading-spinner) {
+    .circular {
+      stroke: #2134DE;
+    }
+  }
+
+  :deep(.el-loading-text) {
+    color: #2134DE;
+    font-size: 14px;
   }
 }
 

@@ -205,7 +205,7 @@
 
     <!-- 修改用户名弹窗 -->
     <div v-if="editUsernameVisible" class="edit-username-overlay" @click="closeEditUsernameDialog">
-        <div class="edit-username-dialog" @click.stop>
+        <div v-loading="editUsernameLoading" element-loading-text="保存中..." class="edit-username-dialog" @click.stop>
             <div class="edit-dialog-header">
                 <div class="edit-dialog-title">修改用户名称</div>
                 <span class="edit-dialog-close" @click="closeEditUsernameDialog">×</span>
@@ -223,7 +223,7 @@
 
     <!-- 修改密码弹窗 -->
     <div v-if="editPasswordVisible" class="edit-username-overlay" @click="closeEditPasswordDialog">
-        <div class="edit-username-dialog edit-password-dialog" @click.stop>
+        <div v-loading="editPasswordLoading" element-loading-text="保存中..." class="edit-username-dialog edit-password-dialog" @click.stop>
             <div class="edit-dialog-header">
                 <div class="edit-dialog-title">修改密码</div>
                 <span class="edit-dialog-close" @click="closeEditPasswordDialog">×</span>
@@ -384,6 +384,7 @@ const initSSEMsg = () => {
 // 修改用户名弹窗
 const editUsernameVisible = ref(false);
 const editUsernameValue = ref('');
+const editUsernameLoading = ref(false);
 
 // 打开修改用户名弹窗
 const openEditUsernameDialog = () => {
@@ -404,6 +405,7 @@ const confirmEditUsername = async () => {
         return;
     }
 
+    editUsernameLoading.value = true;
     try {
         const res = await usersProfile({
             avatarUrl: userInfo.value.avatar || '',
@@ -416,11 +418,15 @@ const confirmEditUsername = async () => {
             closeEditUsernameDialog();
             // 重新获取用户信息以更新显示
             await fetchUserInfo();
+        } else {
+            ElMessage.error(res.message || '用户名修改失败');
         }
     } catch (error) {
         console.error('修改用户名失败:', error);
         const errorMsg = error?.response?.data?.message || error?.message || '修改用户名失败，请稍后重试';
         ElMessage.error(errorMsg);
+    } finally {
+        editUsernameLoading.value = false;
     }
 };
 
@@ -431,6 +437,7 @@ const editPasswordData = reactive({
     newPassword: '',
     confirmPassword: ''
 });
+const editPasswordLoading = ref(false);
 
 // 打开修改密码弹窗
 const openEditPasswordDialog = () => {
@@ -472,6 +479,7 @@ const confirmEditPassword = async () => {
         return;
     }
 
+    editPasswordLoading.value = true;
     try {
         const res = await changePassword({
             oldPassword: editPasswordData.oldPassword,
@@ -492,12 +500,14 @@ const confirmEditPassword = async () => {
             };
             userMenuOpen.value = false;
         } else {
-            ElMessage.error(res.message);
+            ElMessage.error(res.message || '密码修改失败');
         }
     } catch (error) {
         console.error('修改密码失败:', error);
         const errorMsg = error?.response?.data?.message || error?.message || '修改密码失败，请稍后重试';
         ElMessage.error(errorMsg);
+    } finally {
+        editPasswordLoading.value = false;
     }
 };
 
@@ -2085,10 +2095,27 @@ body {
         border-radius: 20px;
         display: flex;
         flex-direction: column;
+        position: relative;
 
         &.edit-password-dialog {
             height: auto;
             min-height: 440px;
+        }
+
+        :deep(.el-loading-mask) {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+        }
+
+        :deep(.el-loading-spinner) {
+            .circular {
+                stroke: #2134DE;
+            }
+        }
+
+        :deep(.el-loading-text) {
+            color: #2134DE;
+            font-size: 14px;
         }
 
         .edit-dialog-header {
