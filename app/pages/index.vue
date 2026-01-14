@@ -2,7 +2,7 @@
     <div id="app">
         <!-- 导航栏 -->
         <div class="navigation flex align-center justify-between">
-            <div class="logo flex align-center" style="width: 205px;">
+            <div class="logo flex align-center" style="width: 207px;">
                 <img src="/img/logo.png" alt="" class="logo-img">
                 <div class="logo-text">SAVELOR</div>
             </div>
@@ -39,7 +39,7 @@
 
 
             <!-- 登录按钮/用户头像 -->
-            <div class="naviga-button flex align-center" style="width: 205px;justify-content: flex-end;">
+            <div class="naviga-button flex align-center" style="width: 207px;justify-content: flex-end;">
                 <!-- <div v-if="isLoggedIn">
                     <el-dropdown trigger="click" max-height="400" @visible-change="handleMsgDropdownVisibleChange">
                         <div class="iconBox" @click="msgApi">
