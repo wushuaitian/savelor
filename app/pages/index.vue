@@ -226,7 +226,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, shallowRef } from "vue";
-import Home from "./home-page.vue";
+import Home from "./home-pageOne.vue";
 import Plagiarism from "./plagiarism.vue";
 import Article from "./blog/index.vue";
 import problem from "./problem.vue";
