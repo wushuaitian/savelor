@@ -408,7 +408,7 @@ onMounted(() => {
 }
 
 .form-control {
-  width: 420px;
+  width: 350px;
   height: 44px;
   
   :deep(.el-input__wrapper) {
