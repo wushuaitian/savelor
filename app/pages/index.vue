@@ -2,99 +2,76 @@
     <div id="app">
         <!-- 导航栏 -->
         <div class="navigation flex align-center justify-between">
-            <div class="logo flex align-center" style="width: 207px;">
+            <div class="logo flex align-center" style="width: 210px;">
                 <img src="/img/logo.png" alt="" class="logo-img">
                 <div class="logo-text">SAVELOR</div>
             </div>
-            <!-- 导航栏菜单 -->
-            <div class="naviga-menu flex align-center">
-                <div @click="navigaJump('home')" class="menu-text" :class="{ 'menu-active': activeMenu == 'home' }">
-                    首页
+
+            <div class="flex align-center">
+                <!-- 导航栏菜单 -->
+                <div class="naviga-menu flex align-center">
+                    <div @click="navigaJump('home')" class="menu-text" :class="{ 'menu-active': activeMenu == 'home' }">
+                        首页
+                    </div>
+                    <div @click="navigaJump('ReviewSpace')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
+                        生成报告
+                    </div>
+                    <!-- <div @click="navigaJump('auditSpace')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu == 'auditSpace' }">
+                        决策空间
+                    </div> -->
+                    <!-- <div @click="navigaJump('companyMaterial')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu == 'companyMaterial' }">
+                        企业材料
+                    </div> -->
+                    <div @click="navigaJump('mySpace')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu == 'mySpace' }">
+                        我的报告
+                    </div>
+                    <!-- <div @click="navigaJump('AiTool')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu === 'AiTool' }">
+                        检测查重
+                    </div> -->
+                    <div @click="navigaJump('problem')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu == 'problem' }">
+                        帮助中心
+                    </div>
                 </div>
-                <div @click="navigaJump('ReviewSpace')" class="menu-text"
-                    :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
-                    生成报告
-                </div>
-                <!-- <div @click="navigaJump('auditSpace')" class="menu-text"
-                    :class="{ 'menu-active': activeMenu == 'auditSpace' }">
-                    决策空间
-                </div> -->
-                <!-- <div @click="navigaJump('companyMaterial')" class="menu-text"
-                    :class="{ 'menu-active': activeMenu == 'companyMaterial' }">
-                    企业材料
-                </div> -->
-                <div @click="navigaJump('mySpace')" class="menu-text"
-                    :class="{ 'menu-active': activeMenu == 'mySpace' }">
-                    我的报告
-                </div>
-                <!-- <div @click="navigaJump('AiTool')" class="menu-text"
-                    :class="{ 'menu-active': activeMenu === 'AiTool' }">
-                    检测查重
-                </div> -->
-                <div @click="navigaJump('problem')" class="menu-text"
-                    :class="{ 'menu-active': activeMenu == 'problem' }">
-                    帮助中心
-                </div>
-            </div>
 
 
-            <!-- 登录按钮/用户头像 -->
-            <div class="naviga-button flex align-center" style="width: 207px;justify-content: flex-end;">
-                <!-- <div v-if="isLoggedIn">
-                    <el-dropdown trigger="click" max-height="400" @visible-change="handleMsgDropdownVisibleChange">
-                        <div class="iconBox" @click="msgApi">
-                            <img src="/img/msg.png" alt="" class="msg-img">
-                            <span v-if="hasNewMessage" class="msg-badge"></span>
-                        </div>
-                        <template #dropdown>
-                            <el-dropdown-menu class="msg-dropdown-menu">
-                                <template v-if="msgApiList.length === 0">
-                                    <div class="msg-empty">
-                                        <div class="msg-empty-text">消息为空</div>
-                                    </div>
-                                </template>
+                <!-- 登录按钮/用户头像 -->
+                <div class="naviga-button flex align-center"  style="width: 210px;justify-content: flex-end;">
+                    <div v-if="!isLoggedIn" class="flex align-center">
+                        <div class="loin m-r-10 text-bold-500" @click="loginOpen('login')">登录</div>
+                        <div class="sign text-bold-500" @click="loginOpen('register')">注册</div>
+                    </div>
+                    <div v-else class="user-avatar-container" @click="toggleUserMenu">
+                        <!-- <img :src="userInfo.avatar || '/img/default-avatar.png'" :alt="userInfo.email || '用户'" class="user-avatar"> -->
+                        <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                            class="h-40 w-40">
 
-
-<el-dropdown-item v-else class="msg-item" v-for="(item, index) in msgApiList" :key="index">
-    <img :src="item.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'" alt=""
-        class="msg-item-img">
-    <div class="msg-text">{{ item.message }}</div>
-    <div class="msg-time">{{ formatDateTime(item.createdAt) }}</div>
-</el-dropdown-item>
-
-</el-dropdown-menu>
-</template>
-</el-dropdown>
-</div> -->
-                <div v-if="!isLoggedIn" class="flex align-center">
-                    <div class="loin m-r-10 text-bold-500" @click="loginOpen('login')">登录</div>
-                    <div class="sign text-bold-500" @click="loginOpen('register')">注册</div>
-                </div>
-                <div v-else class="user-avatar-container" @click="toggleUserMenu">
-                    <!-- <img :src="userInfo.avatar || '/img/default-avatar.png'" :alt="userInfo.email || '用户'" class="user-avatar"> -->
-                    <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
-                        class="h-40 w-40">
-
-                    <div v-if="userMenuOpen" class="user-menu" @click.stop>
-                        <div class="user-menu-header">
-                            <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
-                                class="user-menu-avatar" alt="用户头像">
-                        </div>
-                        <div class="user-info-section">
-                            <div class="info-title">用户名</div>
-                            <div class="info-input username-input">
-                                <span>{{ userInfo.username || '' }}</span>
-                                <span class="edit-text" @click.stop="openEditUsernameDialog">修改</span>
+                        <div v-if="userMenuOpen" class="user-menu" @click.stop>
+                            <div class="user-menu-header">
+                                <img :src="userInfo.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"
+                                    class="user-menu-avatar" alt="用户头像">
                             </div>
-                            <div class="info-title" style="margin-top: 18px;">电子邮箱</div>
-                            <div class="info-input email-input">{{ userInfo.email || '' }}</div>
-                            <div class="info-title" style="margin-top: 18px;">密码</div>
-                            <div class="info-input password-input">
-                                <span>••••••••</span>
-                                <span class="edit-text" @click.stop="openEditPasswordDialog">修改</span>
+                            <div class="user-info-section">
+                                <div class="info-title">用户名</div>
+                                <div class="info-input username-input">
+                                    <span>{{ userInfo.username || '' }}</span>
+                                    <span class="edit-text" @click.stop="openEditUsernameDialog">修改</span>
+                                </div>
+                                <div class="info-title" style="margin-top: 18px;">电子邮箱</div>
+                                <div class="info-input email-input">{{ userInfo.email || '' }}</div>
+                                <div class="info-title" style="margin-top: 18px;">密码</div>
+                                <div class="info-input password-input">
+                                    <span>••••••••</span>
+                                    <span class="edit-text" @click.stop="openEditPasswordDialog">修改</span>
+                                </div>
                             </div>
+                            <div class="logout-button" @click.stop="handleLogout">退出登录</div>
                         </div>
-                        <div class="logout-button" @click.stop="handleLogout">退出登录</div>
                     </div>
                 </div>
             </div>
@@ -1047,14 +1024,14 @@ body {
     height: 100px;
     box-shadow: inset 0px -1px 1px 0px rgba(219, 219, 219, 0.5);
     position: relative;
+    background: linear-gradient( 270deg, #0B2226 0%, #004648 100%);
 
     .logo {
-        width: 204px;
         font-family: var(--font_aiRHjzievx_default);
         font-size: 24px;
         font-weight: 700;
         white-space: pre-wrap;
-        margin-left: 20px;
+        margin-left: 50px;
 
         .logo-img {
             width: 40px;
@@ -1067,42 +1044,48 @@ body {
     }
 
     .naviga-menu {
-        row-gap: 24px;
-        column-gap: 24px;
+        width: 550px;
+        height: 65px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        margin-right: 30px;
 
         .menu-text {
             width: 100px;
             height: 45px;
             background: transparent;
-            border-radius: 8px;
+            border-radius: 0;
             font-family: PingFangSC, PingFang SC;
             font-weight: 400;
             font-size: 18px;
-            color: #101414;
+            color: #FFFFFF;
             line-height: 25px;
-            text-align: center;
+            text-align: left;
             font-style: normal;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 0;
         }
 
-        .menu-text:hover {
-            background: #F2F3F5;
-        }
+
 
         .menu-active {
             width: 100px;
             height: 45px;
-            background: #F2F3F5;
-            border-radius: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 23px;
             font-family: PingFangSC, PingFang SC;
             font-weight: 500;
             font-size: 18px;
-            color: #2134DE;
+            color: #FFFFFF;
             line-height: 25px;
-            text-align: center;
+            text-align: left;
             font-style: normal;
             display: flex;
             align-items: center;
@@ -1111,14 +1094,14 @@ body {
     }
 
     .naviga-button {
-        margin-right: 20px;
+        margin-right: 50px;
 
         .loin {
             padding: 10px 32px;
             border-radius: 26px;
-            border: 1px solid #E5E7EB;
-            background-color: #2134DE;
-            color: #fff;
+            border: 2px solid #FFFFFF;
+            background-color: #FFFFFF;
+            color: #0E0E2C;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent; // 移除移动端点击高亮
         }
@@ -1126,8 +1109,8 @@ body {
         .sign {
             padding: 10px 32px;
             border-radius: 26px;
-            border: 1px solid #2B57FF;
-            color: #2B57FF;
+            border: 2px solid #FFFFFF;
+            color: #FFFFFF;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent; // 移除移动端点击高亮
         }
