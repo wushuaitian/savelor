@@ -1,14 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devServer: {
-    host: '192.168.0.244',//自己电脑的Ip
+    host: '192.168.0.251',//自己电脑的Ip
     port: 3000,
   },
 
   runtimeConfig: {
     // 私有配置（仅在服务端可用）
     public: {
-      apiBase: 'http://192.168.1.23:8030/'
+      apiBase: 'http://192.168.0.251:8030/'
     }
   },
   modules: [
