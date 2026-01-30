@@ -293,7 +293,7 @@ onUnmounted(() => {
         }
 
         .sub-title {
-            font-size: 18px;
+            font-size: 18px;    
             line-height: 1.8;
             margin-bottom: 50px;
             opacity: 0.95;
@@ -305,7 +305,7 @@ onUnmounted(() => {
             align-items: center;
             gap: 12px;
             padding: 16px 40px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.7);
             color: #1D2129;
             border-radius: 50px;
             font-size: 18px;
@@ -451,7 +451,7 @@ onUnmounted(() => {
             box-shadow: 0 8px 32px rgba(29, 33, 41, 0.3);
 
             .feature-card-title {
-                color: #FFFFFF;
+                color: rgba(5, 104, 50, 1);
             }
 
             .feature-card-desc {
