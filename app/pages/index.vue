@@ -61,7 +61,7 @@
                                     class="user-menu-avatar" alt="用户头像">
                             </div>
                             <div class="user-info-section">
-                                <div class="info-title">用户名</div>
+                                <div class="info-title">姓名</div>
                                 <div class="info-input username-input">
                                     <span>{{ userInfo.username || '' }}</span>
                                     <span class="edit-text" @click.stop="openEditUsernameDialog">修改</span>
@@ -148,8 +148,65 @@
         :show-close="true">
         <el-form ref="formRef" :label-position="top" label-width="auto" :model="formLabelAlign" style="max-width: 600px"
             :rules="rules">
-            <el-form-item label="用户名" label-position="top" prop="username">
-                <el-input v-model="formLabelAlign.username" placeholder="请输入你的用户名" />
+            <el-form-item v-if="curretnDialog === 'register'" label="国家/地区" label-position="top" prop="country">
+                <div class="country-state-input">
+                    <div class="country-prefix">美国</div>
+                    <el-select v-model="formLabelAlign.state" class="state-select" placeholder="请选择州">
+                        <el-option label="阿拉巴马州" value="AL" />
+                        <el-option label="阿拉斯加州" value="AK" />
+                        <el-option label="亚利桑那州" value="AZ" />
+                        <el-option label="阿肯色州" value="AR" />
+                        <el-option label="加利福尼亚州" value="CA" />
+                        <el-option label="科罗拉多州" value="CO" />
+                        <el-option label="康涅狄格州" value="CT" />
+                        <el-option label="特拉华州" value="DE" />
+                        <el-option label="佛罗里达州" value="FL" />
+                        <el-option label="佐治亚州" value="GA" />
+                        <el-option label="夏威夷州" value="HI" />
+                        <el-option label="爱达荷州" value="ID" />
+                        <el-option label="伊利诺伊州" value="IL" />
+                        <el-option label="印第安纳州" value="IN" />
+                        <el-option label="爱荷华州" value="IA" />
+                        <el-option label="堪萨斯州" value="KS" />
+                        <el-option label="肯塔基州" value="KY" />
+                        <el-option label="路易斯安那州" value="LA" />
+                        <el-option label="缅因州" value="ME" />
+                        <el-option label="马里兰州" value="MD" />
+                        <el-option label="马萨诸塞州" value="MA" />
+                        <el-option label="密歇根州" value="MI" />
+                        <el-option label="明尼苏达州" value="MN" />
+                        <el-option label="密西西比州" value="MS" />
+                        <el-option label="密苏里州" value="MO" />
+                        <el-option label="蒙大拿州" value="MT" />
+                        <el-option label="内布拉斯加州" value="NE" />
+                        <el-option label="内华达州" value="NV" />
+                        <el-option label="新罕布什尔州" value="NH" />
+                        <el-option label="新泽西州" value="NJ" />
+                        <el-option label="新墨西哥州" value="NM" />
+                        <el-option label="纽约州" value="NY" />
+                        <el-option label="北卡罗来纳州" value="NC" />
+                        <el-option label="北达科他州" value="ND" />
+                        <el-option label="俄亥俄州" value="OH" />
+                        <el-option label="俄克拉荷马州" value="OK" />
+                        <el-option label="俄勒冈州" value="OR" />
+                        <el-option label="宾夕法尼亚州" value="PA" />
+                        <el-option label="罗得岛州" value="RI" />
+                        <el-option label="南卡罗来纳州" value="SC" />
+                        <el-option label="南达科他州" value="SD" />
+                        <el-option label="田纳西州" value="TN" />
+                        <el-option label="德克萨斯州" value="TX" />
+                        <el-option label="犹他州" value="UT" />
+                        <el-option label="佛蒙特州" value="VT" />
+                        <el-option label="弗吉尼亚州" value="VA" />
+                        <el-option label="华盛顿州" value="WA" />
+                        <el-option label="西弗吉尼亚州" value="WV" />
+                        <el-option label="威斯康星州" value="WI" />
+                        <el-option label="怀俄明州" value="WY" />
+                    </el-select>
+                </div>
+            </el-form-item>
+            <el-form-item label="姓名" label-position="top" prop="username">
+                <el-input v-model="formLabelAlign.username" placeholder="请输入你的姓名" />
             </el-form-item>
             <el-form-item label="电子邮箱" label-position="top" prop="email">
                 <el-input v-model="formLabelAlign.email" placeholder="请输入你的邮箱" />
@@ -184,16 +241,16 @@
         </el-form>
     </el-dialog>
 
-    <!-- 修改用户名弹窗 -->
+    <!-- 修改姓名弹窗 -->
     <div v-if="editUsernameVisible" class="edit-username-overlay" @click="closeEditUsernameDialog">
         <div v-loading="editUsernameLoading" element-loading-text="保存中..." class="edit-username-dialog" @click.stop>
             <div class="edit-dialog-header">
-                <div class="edit-dialog-title">修改用户名称</div>
+                <div class="edit-dialog-title">修改姓名</div>
                 <span class="edit-dialog-close" @click="closeEditUsernameDialog">×</span>
             </div>
             <div class="edit-dialog-content">
-                <div class="edit-dialog-label">用户名</div>
-                <input v-model="editUsernameValue" type="text" class="edit-dialog-input" placeholder="请输入用户名称" />
+                <div class="edit-dialog-label">姓名</div>
+                <input v-model="editUsernameValue" type="text" class="edit-dialog-input" placeholder="请输入姓名" />
             </div>
             <div class="edit-dialog-footer">
                 <button class="edit-dialog-cancel-btn" @click="closeEditUsernameDialog">取消</button>
@@ -363,27 +420,27 @@ const initSSEMsg = () => {
 };
 
 
-// 修改用户名弹窗
+// 修改姓名弹窗
 const editUsernameVisible = ref(false);
 const editUsernameValue = ref('');
 const editUsernameLoading = ref(false);
 
-// 打开修改用户名弹窗
+// 打开修改姓名弹窗
 const openEditUsernameDialog = () => {
     editUsernameValue.value = userInfo.value.username || '';
     editUsernameVisible.value = true;
 };
 
-// 关闭修改用户名弹窗
+// 关闭修改姓名弹窗
 const closeEditUsernameDialog = () => {
     editUsernameVisible.value = false;
     editUsernameValue.value = '';
 };
 
-// 确认修改用户名
+// 确认修改姓名
 const confirmEditUsername = async () => {
     if (!editUsernameValue.value.trim()) {
-        ElMessage.warning('用户名不能为空');
+        ElMessage.warning('姓名不能为空');
         return;
     }
 
@@ -396,16 +453,16 @@ const confirmEditUsername = async () => {
         });
 
         if (res.code === 200) {
-            ElMessage.success('用户名修改成功');
+            ElMessage.success('姓名修改成功');
             closeEditUsernameDialog();
             // 重新获取用户信息以更新显示
             await fetchUserInfo();
         } else {
-            ElMessage.error(res.message || '用户名修改失败');
+            ElMessage.error(res.message || '姓名修改失败');
         }
     } catch (error) {
-        console.error('修改用户名失败:', error);
-        const errorMsg = error?.response?.data?.message || error?.message || '修改用户名失败，请稍后重试';
+        console.error('修改姓名失败:', error);
+        const errorMsg = error?.response?.data?.message || error?.message || '修改姓名失败，请稍后重试';
         ElMessage.error(errorMsg);
     } finally {
         editUsernameLoading.value = false;
@@ -791,6 +848,8 @@ const loginOpen = (text) => {
             formRef.value.resetFields();
         } else {
             // 如果表单引用还未初始化，直接重置数据
+            formLabelAlign.country = 'US';
+            formLabelAlign.state = '';
             formLabelAlign.username = '';
             formLabelAlign.email = '';
             formLabelAlign.password = '';
@@ -815,6 +874,8 @@ const loginOpen = (text) => {
 
 // 表单
 const formLabelAlign = reactive({
+    country: 'US',
+    state: '',
     username: '',
     email: '',
     password: '',
@@ -855,10 +916,16 @@ const validateConfirmPassword = (rule, value, callback) => {
 
 // 表单校验规则
 const rules = computed(() => ({
+    country: curretnDialog.value === 'register' ? [
+        { required: true, message: '请选择国家', trigger: 'change' }
+    ] : [],
+    state: curretnDialog.value === 'register' ? [
+        { required: true, message: '请选择州', trigger: 'change' }
+    ] : [],
     username: [
-        { required: true, message: '请输入用户名', trigger: 'blur' },
-        { min: 2, message: '用户名至少2位', trigger: 'blur' },
-        { max: 20, message: '用户名最多20位', trigger: 'blur' }
+        { required: true, message: '请输入姓名', trigger: 'blur' },
+        { min: 2, message: '姓名至少2位', trigger: 'blur' },
+        { max: 20, message: '姓名最多20位', trigger: 'blur' }
     ],
     email: [
         { required: true, validator: validateEmail, trigger: 'blur' }
@@ -916,6 +983,8 @@ const loginButton = async () => {
         } else {
             // 注册逻辑
             savelorUserRegister({
+                country: formLabelAlign.country,
+                state: formLabelAlign.state,
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
                 username: formLabelAlign.username,
@@ -1768,6 +1837,67 @@ body {
     }
 
     &.register-dialog {
+        .country-state-input {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 48px;
+            background-color: #F3F4F6;
+            border-radius: 50px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: #E5E7EB;
+            }
+
+            .country-prefix {
+                padding: 0 16px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                background-color: #E5E7EB;
+                color: #1D2530;
+                font-size: 14px;
+                font-weight: 500;
+                border-right: 1px solid #D1D5DB;
+                white-space: nowrap;
+            }
+
+            .state-select {
+                flex: 1;
+                height: 100%;
+
+                :deep(.el-select__wrapper) {
+                    min-height: 48px;
+                    border-radius: 0;
+                    background-color: transparent;
+                    box-shadow: none;
+                    border: none;
+                    padding: 0 12px;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background-color: transparent;
+                    }
+
+                    &.is-focused {
+                        background-color: transparent;
+                        box-shadow: none;
+                    }
+
+                    .el-select__placeholder {
+                        color: #9CA3AF;
+                    }
+
+                    .el-select__selected-item {
+                        color: #1D2530;
+                        font-size: 14px;
+                    }
+                }
+            }
+        }
+
         .el-input__wrapper {
             background-color: #F3F4F6;
             box-shadow: none;
@@ -1781,6 +1911,35 @@ body {
             &.is-focus {
                 background-color: #fff;
                 box-shadow: 0 0 0 1px #60A5FA inset;
+            }
+        }
+
+        .el-select__wrapper {
+            min-height: 48px;
+            border-radius: 50px;
+            background-color: #F3F4F6;
+            box-shadow: none;
+            border: none;
+            padding: 0 16px;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: #E5E7EB;
+                box-shadow: none;
+            }
+
+            &.is-focused {
+                background-color: #fff;
+                box-shadow: 0 0 0 1px #60A5FA inset;
+            }
+
+            .el-select__placeholder {
+                color: #9CA3AF;
+            }
+
+            .el-select__selected-item {
+                color: #1D2530;
+                font-size: 14px;
             }
         }
     }
