@@ -2,79 +2,60 @@
   <div class="my-space-page">
     <!-- 列表视图 -->
     <div v-if="component === 'list'">
-    <!-- 卡片模块 -->
-    <div v-loading="loading" class="card-module" element-loading-text="加载中...">
-      <!-- 空数据状态 -->
-      <el-empty v-if="!loading && cardList.length === 0" description="暂无报告数据" :image-size="120" />
-      
-      <!-- 卡片列表 -->
-      <div v-else class="card-grid">
-        <div 
-          v-for="(card, index) in cardList" 
-          :key="index" 
-          class="card-item"
-          @mouseenter="hoverCardId = index"
-          @mouseleave="hoverCardId = null"
-        >
-          <!-- 第一行：标题 -->
-          <div class="card-title">{{ card.displayName }}</div>
-          
-          <!-- 第二行： -->
-          <div class="card-meta">
-            <span>{{ formatDate(card.uploadTime) }}</span>
-          </div>
-          
-          
-          <!-- 第四行：分割线 -->
-          <div class="divider-line"></div>
-          
-          <!-- 第五行：操作按钮 -->
-          <div class="card-actions">
-            <div
-              class="action-button view-btn"
-              :class="{ 'hover-view': hoverCardId === index && hoveredButton === 'view' }"
-              @mouseenter="hoveredButton = 'view'"
-              @mouseleave="hoveredButton = null"
-              @click="viewReport(card.reportId)"
-            >
-              <img :src="hoverCardId === index && hoveredButton === 'view' ? '/img/viewH.png' : '/img/view.png'" alt="查看" />
-              <span>查看</span>
+      <!-- 卡片模块 -->
+      <div v-loading="loading" class="card-module" element-loading-text="加载中...">
+        <!-- 空数据状态 -->
+        <el-empty v-if="!loading && cardList.length === 0" description="暂无报告数据" :image-size="120" />
+
+        <!-- 卡片列表 -->
+        <div v-else class="card-grid">
+          <div v-for="(card, index) in cardList" :key="index" class="card-item" @mouseenter="hoverCardId = index"
+            @mouseleave="hoverCardId = null">
+            <!-- 第一行：标题 -->
+            <div class="card-title">{{ card.displayName }}</div>
+
+            <!-- 第二行： -->
+            <div class="card-meta">
+              <span>{{ formatDate(card.uploadTime) }}</span>
             </div>
-            <div 
-              class="action-button download-btn"
-              :class="{ 'hover-download': hoverCardId === index && hoveredButton === 'download' }"
-              @mouseenter="hoveredButton = 'download'"
-              @mouseleave="hoveredButton = null"
-              @click="downloadReport(card.reportId)"
-            >
-              <img :src="hoverCardId === index && hoveredButton === 'download' ? '/img/downloadH.png' : '/img/download.png'" alt="下载" />
-              <span>下载</span>
+
+
+            <!-- 第四行：分割线 -->
+            <div class="divider-line"></div>
+
+            <!-- 第五行：操作按钮 -->
+            <div class="card-actions">
+              <div class="action-button view-btn"
+                :class="{ 'hover-view': hoverCardId === index && hoveredButton === 'view' }"
+                @mouseenter="hoveredButton = 'view'" @mouseleave="hoveredButton = null" @click="viewReport(card)">
+                <img :src="hoverCardId === index && hoveredButton === 'view' ? '/img/viewH.png' : '/img/view.png'"
+                  alt="查看" />
+                <span>查看</span>
+              </div>
+              <div class="action-button download-btn"
+                :class="{ 'hover-download': hoverCardId === index && hoveredButton === 'download' }"
+                @mouseenter="hoveredButton = 'download'" @mouseleave="hoveredButton = null"
+                @click="downloadReport(card)">
+                <img
+                  :src="hoverCardId === index && hoveredButton === 'download' ? '/img/downloadH.png' : '/img/download.png'"
+                  alt="下载" />
+                <span>下载</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- 分页 -->
+        <div v-if="total > 0" class="pagination-wrapper">
+          <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[9, 18, 27, 36]"
+            :total="total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
+            @current-change="handlePageChange" />
+        </div>
       </div>
-      
-      <!-- 分页 -->
-      <div v-if="total > 0" class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="[9, 18, 27, 36]"
-          :total="total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-        />
-      </div>
-    </div>
     </div>
 
     <!-- 预览视图 -->
-    <MyReportPreview
-      v-else-if="component === 'preview'"
-      :report-id="currentReportId"
-      @back="component = 'list'"
-    />
+    <MyReportPreview v-else-if="component === 'preview'" :report-id="currentReportId" @back="component = 'list'" />
   </div>
 </template>
 
@@ -85,8 +66,9 @@ import { whitepapers } from '../../composables/msg'
 import MyReportPreview from './my-report-preview.vue'
 // 接口
 import {
-     // 下载报告数据
-    savelorReportsDownload,
+  // 下载报告数据
+  savelorReportsDownload,
+  savelorWhitepapersDownload
 } from "../../composables/login";
 
 // 组件切换
@@ -155,34 +137,71 @@ const handleSizeChange = (size) => {
 }
 
 // 查看报告
-const viewReport = (reportId) => {
-  currentReportId.value = reportId
-  component.value = 'preview'
+const viewReport = (card) => {
+  ElMessage.success('正在加载中.....')
+  // currentReportId.value = reportId
+  savelorWhitepapersDownload({
+    filename: card.fileName,
+    action: 'preview'
+  }).then(res => {
+    console.log(res, 'resresresresres');
+
+    const blob = new Blob([res], {
+      type: 'application/pdf' // 根据实际文件类型调整 MIME 类型
+    });
+
+    // 创建对象 URL
+    const url = URL.createObjectURL(blob);
+
+    // 新标签页打开预览
+    const newWindow = window.open(url, '_blank');
+
+    // 如果新窗口被阻止弹出，则提示用户手动点击链接
+    if (!newWindow) {
+      ElMessage.warning('弹窗被阻止，请允许弹窗以预览报告');
+    }
+
+    // 清理资源
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 1000); // 延迟清理，确保新窗口已加载完成
+
+  }).catch(err => {
+    console.error(err);
+    // 显示错误提示
+    const errorMsg = err.response;
+    ElMessage.error(errorMsg);
+  })
 }
 // 下载完整报告
-const downloadReport = (reportId) => {
-    ElMessage.success('正在下载完整报告...')
-    savelorReportsDownload({
-        reportId: reportId,
-        fileType: 'pdf'
-    }).then(res => {
-        let blob = new Blob([res], {
-            type: "application/vnd.ms-excel;charset=UTF-8",
-        });
-        let objUrl = URL.createObjectURL(blob);
-        let fileLink = document.createElement("a");
-        let fileName = `report_${reportId}.pdf`;
-        let format = "pdf";
-        fileLink.href = objUrl;
-        fileLink.download = `${fileName}.${format}`;
-        fileLink.click();
-        window.URL.revokeObjectURL(blob);
-    }).catch(err => {
-        console.error(err);
-        // 显示错误提示
-        const errorMsg = err.response;
-        ElMessage.error(errorMsg);
-    })
+const downloadReport = (card) => {
+  ElMessage.success('正在下载完整报告...')
+  console.log(card, 'cardcardcardcardcardcardcardcardcardcardcardcard');
+
+  savelorWhitepapersDownload({
+    filename: card.fileName,
+    action: 'preview'
+  }).then(res => {
+    console.log(res, 'resresresresres');
+
+    let blob = new Blob([res], {
+      type: "application/vnd.ms-excel;charset=UTF-8",
+    });
+    let objUrl = URL.createObjectURL(blob);
+    let fileLink = document.createElement("a");
+    let fileName = `report_${card.fileName}.pdf`;
+    let format = "pdf";
+    fileLink.href = objUrl;
+    fileLink.download = `${fileName}.${format}`;
+    fileLink.click();
+    window.URL.revokeObjectURL(blob);
+
+  }).catch(err => {
+    console.error(err);
+    // 显示错误提示
+    const errorMsg = err.response;
+    ElMessage.error(errorMsg);
+  })
 }
 // 初始化加载数据
 onMounted(() => {
@@ -255,7 +274,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: #eeeff7;
     border: 1px solid #2134DE;
@@ -285,8 +304,8 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   margin: 15px 0px 17px 0px;
-  
-  > span {
+
+  >span {
     height: 20px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
@@ -296,7 +315,7 @@ onMounted(() => {
     text-align: left;
     font-style: normal;
   }
-  
+
   .divider {
     color: #E4E5EA;
     font-size: 10px;

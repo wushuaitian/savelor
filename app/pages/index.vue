@@ -990,6 +990,7 @@ const navigaJump = (event) => {
             break;
         // 白皮书
         case 'myBai':
+        console.log('白皮书');
             component.value = myBai
             activeMenu.value = 'myBai'
             break;

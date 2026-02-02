@@ -284,6 +284,25 @@ export function savelorReportsDownload(data: RequestParams) {
 }
 
 
+/**
+ * 
+ * 白皮书下载
+ * @param data 
+ * @returns 
+ */
+export function savelorWhitepapersDownload(data: RequestParams) {
+    return request({
+        url: `/api/whitepapers/${data.filename}`,
+        method: 'get',
+        params: data,
+        responseType: "blob",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    })
+}
+
+
 // 创建空间
 export function savelorSpaces(data: RequestParams) {
     return request({
