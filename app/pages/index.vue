@@ -13,6 +13,10 @@
                     <div @click="navigaJump('home')" class="menu-text" :class="{ 'menu-active': activeMenu == 'home' }">
                         首页
                     </div>
+                    <div @click="navigaJump('myBai')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu == 'myBai' }">
+                        白皮书
+                    </div>
                     <div @click="navigaJump('ReviewSpace')" class="menu-text"
                         :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
                         生成报告
@@ -41,7 +45,7 @@
 
 
                 <!-- 登录按钮/用户头像 -->
-                <div class="naviga-button flex align-center"  style="width: 210px;justify-content: flex-end;">
+                <div class="naviga-button flex align-center"  style="justify-content: flex-end;">
                     <div v-if="!isLoggedIn" class="flex align-center">
                         <div class="loin m-r-10 text-bold-500" @click="loginOpen('login')">登录</div>
                         <div class="sign text-bold-500" @click="loginOpen('register')">注册</div>
@@ -232,7 +236,8 @@ import Article from "./blog/index.vue";
 import problem from "./problem.vue";
 // 我的报告
 import mySpace from "./my-space.vue";
-
+// 我的报告
+import myBai from "./my-bai.vue";
 
 // 工具页 ai生成
 import AiTool from "./tool-ai.vue";
@@ -983,7 +988,11 @@ const navigaJump = (event) => {
             component.value = auditSpace
             activeMenu.value = 'auditSpace'
             break;
-
+        // 白皮书
+        case 'myBai':
+            component.value = myBai
+            activeMenu.value = 'myBai'
+            break;
         // 我的报告
         case 'mySpace':
             component.value = mySpace
@@ -1044,7 +1053,7 @@ body {
     }
 
     .naviga-menu {
-        width: 550px;
+        padding: 0px 34px;
         height: 65px;
         background: rgba(255,255,255,0.1);
         border-radius: 35px;

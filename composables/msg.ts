@@ -37,3 +37,12 @@ export function reportsDelete(data: RequestParams) {
         method: 'DELETE',
     })
 }
+
+//白皮书列表
+export function whitepapers(data: RequestParams) {
+    return request({
+        url: `/api/whitepapers`,
+        method: 'get',
+        params: data,
+    })
+}
