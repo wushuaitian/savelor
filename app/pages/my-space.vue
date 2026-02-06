@@ -95,7 +95,7 @@
               @mouseleave="hoveredButton = null"
               @click="downloadReport(card.reportId)"
             >
-              <img :src="hoverCardId === index && hoveredButton === 'download' ? '/img/downloadH.png' : '/img/download.png'" alt="下载" />
+              <img :src="hoverCardId === index && hoveredButton === 'download' ? '/img/download.png' : '/img/download.png'" alt="下载" />
               <span>下载</span>
             </div>
             <div
@@ -371,7 +371,7 @@ onMounted(() => {
 .search-button {
   width: 74px;
   height: 44px;
-  background: #2134DE;
+  background: #223A77;
   color: white;
   border: none;
   border-radius: 8px;
@@ -418,7 +418,7 @@ onMounted(() => {
     padding: 0 16px;
     
     &.is-focus {
-      box-shadow: 0 0 0 1px #2134DE inset;
+      box-shadow: 0 0 0 1px #223A77 inset;
     }
   }
   
@@ -440,7 +440,7 @@ onMounted(() => {
     min-height: 44px;
     
     &.is-focused {
-      box-shadow: 0 0 0 1px #2134DE inset;
+      box-shadow: 0 0 0 1px #223A77 inset;
     }
   }
   
@@ -517,10 +517,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  color: #1D2129;
+
   
   &:hover {
-    background: #eeeff7;
-    border: 1px solid #2134DE;
+    background: #223A77;
+    color: #FFFFFF !important;
+    //border: 1px solid #2134DE;
+
+    .tag-item {
+      background: rgba(255, 255, 255, 0.16);
+      color: #FFFFFF;
+    }
   }
 }
 
@@ -531,7 +539,6 @@ onMounted(() => {
   font-family: PingFangSC, PingFang SC;
   font-weight: 500;
   font-size: 16px;
-  color: #1D2129;
   line-height: 22px;
   text-align: left;
   font-style: normal;
@@ -553,14 +560,12 @@ onMounted(() => {
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
     font-size: 14px;
-    color: #4E5969;
     line-height: 20px;
     text-align: left;
     font-style: normal;
   }
   
   .divider {
-    color: #E4E5EA;
     font-size: 10px;
   }
 }
@@ -634,14 +639,18 @@ onMounted(() => {
   }
 
   &.hover-delete {
-    background: rgba(255, 20, 20, 0.1);
-    color: #FF5959;
+    background: #E74848;
+    color: #FFFFFF;
   }
 
-  &.hover-download,
+  &.hover-download{
+    background: #FFFFFF;
+    color: #4E5969;
+  }
+
   &.hover-view {
-    background: #c3c8f6;
-    color: #2134DE;
+    background: #FFDF3A;
+    color: #223A77;
   }
 }
 

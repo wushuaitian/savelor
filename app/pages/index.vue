@@ -13,10 +13,6 @@
                     <div @click="navigaJump('home')" class="menu-text" :class="{ 'menu-active': activeMenu == 'home' }">
                         首页
                     </div>
-                    <div @click="navigaJump('myBai')" class="menu-text"
-                        :class="{ 'menu-active': activeMenu == 'myBai' }">
-                        白皮书
-                    </div>
                     <div @click="navigaJump('ReviewSpace')" class="menu-text"
                         :class="{ 'menu-active': activeMenu == 'ReviewSpace' }">
                         生成报告
@@ -32,6 +28,10 @@
                     <div @click="navigaJump('mySpace')" class="menu-text"
                         :class="{ 'menu-active': activeMenu == 'mySpace' }">
                         我的报告
+                    </div>
+                    <div @click="navigaJump('myBai')" class="menu-text"
+                        :class="{ 'menu-active': activeMenu == 'myBai' }">
+                        行业报告
                     </div>
                     <!-- <div @click="navigaJump('AiTool')" class="menu-text"
                         :class="{ 'menu-active': activeMenu === 'AiTool' }">
@@ -1057,9 +1057,9 @@ const navigaJump = (event) => {
             component.value = auditSpace
             activeMenu.value = 'auditSpace'
             break;
-        // 白皮书
+        // 行业报告
         case 'myBai':
-        console.log('白皮书');
+        console.log('行业报告');
             component.value = myBai
             activeMenu.value = 'myBai'
             break;
@@ -1103,7 +1103,7 @@ body {
     height: 100px;
     box-shadow: inset 0px -1px 1px 0px rgba(219, 219, 219, 0.5);
     position: relative;
-    background: linear-gradient( 270deg, #0B2226 0%, #004648 100%);
+    background: #223A77;
 
     .logo {
         font-family: var(--font_aiRHjzievx_default);
