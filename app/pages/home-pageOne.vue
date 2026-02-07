@@ -1,71 +1,58 @@
 <template>
     <div class="home">
         <!-- 介绍 -->
-        <div class="introduc introduc-one">
-            <div class="introduc-one-container">
+        <div class="introduc introduc-one flex align-center justify-center">
+            <div class="introduc-one-container justify-between flex align-center">
                 <!-- 左侧内容 -->
                 <div class="left-content">
-                    <h1 class="main-title text-bold-600">
-                        核查5大核心风险维度<br />
-                        提供决策事实依据
+                    <h1 class="main-title text-18 text-bold-600">
+                        核查5大核心风险维度提供决策事实依据
                     </h1>
-                    <p class="sub-title text-bold-600">
+                    <p class="sub-title text-18 text-bold-500">
                         基于官方数据源，快速识别美国公司的制裁、诉讼及合规状态<br />
                         为您的商业决策提供事实依据。
                     </p>
-                    <div class="action-button" @click="generateReport('ReviewSpace')">
+                    <div class="action-button b-r-48 text-26 text-bold-600 align-center"
+                        @click="generateReport('ReviewSpace')">
                         生成报告
-                        <svg class="arrow-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <img src="/img/arrowImg.png" alt="" class="arrow-img">
                     </div>
                 </div>
 
                 <!-- 右侧轮播卡片 -->
                 <div class="right-carousel">
-                    <div class="carousel-track"
-                        :style="{ transform: `translateX(-${currentCardIndex * (100 / visibleCards)}%)` }">
-                        <div v-for="(card, index) in dataCards" :key="index" class="data-card">
-                            <div class="card-title text-bold-600">{{ card.title }}</div>
-                            <div class="card-image">
-                                <img :src="card.image" :alt="card.title" />
-                            </div>
-                        </div>
-                    </div>
+                    <img src="/img/pageImg.png" alt="" class="page-img">
                 </div>
             </div>
         </div>
-        <div class=" introduc-two">
-            <div class="introduc-two-container">
-                <div class="two-header">
-                    <div class="small-title">为什么使用FoodEvident?</div>
-                    <h2 class="large-title text-bold-600">
-                        我们服务的不只是"查供应商"的企<br />
-                        业，而是所有需要与食品安全、合<br />
-                        规与风险打交道的组织。
-                    </h2>
-                </div>
-            </div>
+        <div class="introduc-two flex flex-column">
+            <div class="small-title text-bold-400 text-32">为什么使用FoodEvident?</div>
+            <h2 class="large-title text-bold-600">
+                我们服务的不只是"查供应商"的企业，而是所有需要与食品安全、合规与风险打交道的组织。
+            </h2>
         </div>
 
         <div class="introduc-three">
-            <div class="introduc-three-container">
-                <div class="features-grid">
-                    <div v-for="(feature, index) in features" :key="index" class="feature-card-item"
-                        :class="{ active: selectedFeature === index }" @click="selectedFeature = index">
-                        <h3 class="feature-card-title">{{ feature.title }}</h3>
-                        <p class="feature-card-desc">{{ feature.description }}</p>
-                    </div>
+            <div class="introduc-three-container b-r-56 flex flex-wrap justify-center">
+                <div v-for="(feature, index) in features" :key="index"
+                    class="feature-card-item justify-center flex flex-column b-r-24"
+                    :class="{ active: selectedFeature === index }" @click="selectedFeature = index">
+                    <h3 class="feature-card-title  text-bold-400">{{ feature.title }}</h3>
+                    <p class="feature-card-desc text-28 text-bold-400">{{ feature.description }}</p>
                 </div>
             </div>
         </div>
-        <div class="introduc introduc-four">
+        <div class="introduc-five flex justify-around align-center">
+            <div class="five-item b-r-40" v-for="(item, index) in stepData" :key="index">
+                <img :src="item.imgDisplay" alt="" class="five-img">
+                <div class="five-item-title  text-bold-600 text-24">{{ item.title }}</div>
+            </div>
+        </div>
+        <div class="introduc-four flex flex-column justify-center m-auto">
             <div class="introduc-four-container">
                 <div class="left-image-container">
                     <div class="image-wrapper">
-                        <img src="/img/dataImg.png" alt="食品安全" />
+                        <img src="/img/pageFour.png" alt="食品安全" />
                     </div>
                 </div>
 
@@ -74,17 +61,13 @@
                     <p class="four-sub-text">在关乎产品安全与品牌声誉的决策上，获得更清晰的事实依据与更充足的信心。</p>
                     <div class="four-action-button" @click="generateReport('ReviewSpace')">
                         生成报告
-                        <svg class="button-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 10H16M16 10L10 4M16 10L10 16" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <img src="/img/arrowImg.png" alt="" class="arrow-img">
                     </div>
                 </div>
             </div>
 
-            <!-- 底部导航栏 -->
-            <!-- <div class="footer-nav">
+             <!-- 底部导航栏 -->
+            <div class="footer-nav">
                 <a href="#" class="nav-link">首页 |</a>
                 <a @click="generateReport('ReviewSpace')">生成报告 |</a>
                 <a class="nav-link" @click="generateReport('mySpace')">我的报告 |</a>
@@ -92,8 +75,9 @@
                 <a class="nav-link">隐私政策 |</a>
                 <a class="nav-link">服务条款 |</a>
                 <span class="copyright">© 2026 SAVELOR PTE. LTD.</span>
-            </div> -->
+            </div>
         </div>
+
     </div>
 </template>
 
@@ -103,7 +87,6 @@ import { ElMessage } from 'element-plus'
 
 
 const emit = defineEmits(['spaceCreated']);
-const currentTab = ref('ip');
 const selectedFeature = ref(2); // 默认选中"专业输出"（索引2）
 
 // 功能特性数据
@@ -126,89 +109,26 @@ const features = ref([
     }
 ]);
 
-// 官方数据源轮播卡片数据
-const dataCards = ref([
-    { title: '官方数据源', image: '/img/dataImg.png' },
-    { title: '官方数据源', image: '/img/dataImg.png' },
-    { title: '官方数据源', image: '/img/dataImg.png' },
-    { title: '官方数据源', image: '/img/dataImg.png' }
+
+// 提前导入图片资源
+import infoImg from '/img/infoImg.png';
+import typeImg from '/img/typeImg.png';
+import reportImg from '/img/reportImg.png';
+
+const stepData = ref([
+    {
+        title: '输入公司信息',
+        imgDisplay: infoImg,
+    },
+    {
+        title: '选择报告类型',
+        imgDisplay: typeImg,
+    },
+    {
+        title: '生成选定报告',
+        imgDisplay: reportImg,
+    }
 ]);
-
-const currentCardIndex = ref(0);
-const visibleCards = 3; // 可见卡片数量
-const cardAutoPlayTimer = ref(null);
-
-// 自动轮播卡片
-const autoPlayCards = () => {
-    cardAutoPlayTimer.value = setInterval(() => {
-        currentCardIndex.value = (currentCardIndex.value + 1) % (dataCards.value.length - visibleCards + 1);
-    }, 3000);
-};
-
-const stopCardAutoPlay = () => {
-    if (cardAutoPlayTimer.value) {
-        clearInterval(cardAutoPlayTimer.value);
-        cardAutoPlayTimer.value = null;
-    }
-};
-
-// 轮播图数据
-const carouselItems = [
-    {
-        displayImage: '/img/one-display.png',
-        icon: '/img/one.png',
-        selectedIcon: '/img/one-selected.png',
-        title: '输入公司信息'
-    },
-    {
-        displayImage: '/img/two-display.png',
-        icon: '/img/two.png',
-        selectedIcon: '/img/two-selected.png',
-        title: '选择报告类型'
-    },
-    {
-        displayImage: '/img/three-display.png',
-        icon: '/img/three.png',
-        selectedIcon: '/img/three-selected.png',
-        title: '生成选定报告'
-    }
-];
-
-// 当前幻灯片索引
-const currentSlide = ref(0);
-// 轮播定时器
-const carouselTimer = ref(null);
-
-// 当前展示的图片
-const currentDisplayImage = computed(() => {
-    return carouselItems[currentSlide.value].displayImage;
-});
-
-// 切换到指定幻灯片
-const goToSlide = (index) => {
-    currentSlide.value = index;
-};
-
-// 下一张幻灯片
-const nextSlide = () => {
-    currentSlide.value = (currentSlide.value + 1) % carouselItems.length;
-};
-
-// 启动自动轮播
-const startAutoPlay = () => {
-    carouselTimer.value = window.setInterval(() => {
-        nextSlide();
-    }, 4000); // 每4秒切换一次
-};
-
-// 停止自动轮播
-const stopAutoPlay = () => {
-    if (carouselTimer.value) {
-        clearInterval(carouselTimer.value);
-        carouselTimer.value = null;
-    }
-};
-
 const generateReport = (name) => {
     emit('spaceCreated', '', name);
 };
@@ -219,16 +139,10 @@ const downloadReport = () => {
 onMounted(() => {
     // 确保组件完全挂载后再执行任何可能影响 DOM 的操作
     console.log('Home page mounted');
-    // 启动自动轮播
-    startAutoPlay();
-    // 启动卡片轮播
-    autoPlayCards();
 });
 
 onUnmounted(() => {
     // 组件卸载时清除定时器
-    stopAutoPlay();
-    stopCardAutoPlay();
 });
 </script>
 
@@ -247,68 +161,39 @@ onUnmounted(() => {
 }
 
 .introduc-one {
-    background-image: url('/img/homeBimg.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    position: relative;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.15);
-        pointer-events: none;
-    }
+    background-color: #fff;
 
     .introduc-one-container {
-        width: 100%;
-        max-width: 1400px;
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 60px;
-        position: relative;
-        z-index: 1;
+        width: 80%;
     }
 
     .left-content {
         flex: 1;
         color: #FFFFFF;
-        padding-top: 0;
-        margin-top: -80px;
+
+        .arrow-img {
+            width: 30px;
+            height: 30px;
+        }
 
         .main-title {
-            font-size: 56px;
-            line-height: 1.3;
+            font-size: 72px;
             margin-bottom: 30px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            color: #223A77;
         }
 
         .sub-title {
-            font-size: 18px;    
-            line-height: 1.8;
             margin-bottom: 50px;
             opacity: 0.95;
-            font-weight: 500;
+            color: #223A77;
         }
 
         .action-button {
             display: inline-flex;
-            align-items: center;
             gap: 12px;
             padding: 16px 40px;
-            background: rgba(255, 255, 255, 0.7);
-            color: #1D2129;
-            border-radius: 50px;
-            font-size: 18px;
+            background: #FFDF3A;
+            color: #223A77;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -319,139 +204,77 @@ onUnmounted(() => {
                 box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
             }
 
-            .arrow-icon {
-                width: 24px;
-                height: 24px;
-                transition: transform 0.3s ease;
-            }
-
-            &:hover .arrow-icon {
-                transform: translateX(4px);
-            }
         }
     }
 
     .right-carousel {
-        flex: 1;
+        flex: 0.7;
         overflow: hidden;
-        padding: 20px 0;
-        margin-top: 100px;
+        margin-top: 5%;
 
-        .carousel-track {
-            display: flex;
-            gap: 20px;
-            transition: transform 0.6s ease-in-out;
-        }
-
-        .data-card {
-            min-width: calc(33.333% - 14px);
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-
-            &:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-            }
-
-            .card-title {
-                font-size: 20px;
-                color: #1D2129;
-                margin-bottom: 16px;
-                text-align: center;
-            }
-
-            .card-image {
-                width: 100%;
-                height: 180px;
-                border-radius: 12px;
-                overflow: hidden;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: #F5F6FA;
-
-                img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-            }
+        .page-img {
+            width: 100%;
         }
     }
 }
 
+.arrow-img {
+    width: 30px;
+    height: 30px;
+}
+
 .introduc-two {
+    color: #223A77;
     background-color: #FFFFFF;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 100px 300px;
-    // min-height: calc(100vh - 100px);
-    height: auto;
+    width: 80%;
+    margin: 10% auto 2% auto;
 
-    .introduc-two-container {
-        width: 100%;
-        max-width: 1400px;
-    }
-
-    .two-header {
-        .small-title {
-            font-size: 18px;
-            color: rgba(5, 104, 50, 1);
-            margin-bottom: 40px;
-            font-weight: 500;
-        }
-
-        .large-title {
-            font-size: 56px;
-            color: #1D2129;
-            line-height: 1.4;
-            letter-spacing: -0.5px;
-        }
+    .large-title {
+        font-size: 66px;
+        margin-right: 2%;
     }
 }
 
 .introduc-three {
     background: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: calc(100vh - 6.25rem);
+    width: 100%;
+    // height: calc(100vh - 6.25rem);
 
     .introduc-three-container {
-        width: 100%;
-        max-width: 1400px;
-    }
-
-    .features-grid {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        background: rgba(247, 248, 250, 1);
+        width: 90%;
+        margin: auto;
+        background: #F7F8FA;
         border-radius: 60px;
-        gap: 20px;
+        gap: 55px;
         height: auto;
         padding: 40px 0px;
     }
 
     .feature-card-item {
-        border-radius: 24px;
         padding: 30px 20px;
         transition: all 0.4s ease;
         cursor: pointer;
-        width: 35%;
-        min-height: 200px;
+        width: 40%;
+        height: 30vh;
+        color: #223A77;
+
+        .feature-card-title {
+            font-size: 20px;
+            margin-bottom: 30px;
+            transition: color 0.3s ease;
+        }
+
+        .feature-card-desc {
+            color: #000;
+            transition: color 0.3s ease;
+        }
 
         &.active {
-            background: rgba(11, 34, 38, 1);
+            background: #223A77;
             box-shadow: 0 8px 32px rgba(29, 33, 41, 0.3);
 
             .feature-card-title {
-                color: rgba(5, 104, 50, 1);
+                color: #fff;
             }
 
             .feature-card-desc {
@@ -464,35 +287,23 @@ onUnmounted(() => {
         }
     }
 
-    .feature-card-title {
-        font-size: 24px;
-        color: #1D2129;
-        margin-bottom: 30px;
-        transition: color 0.3s ease;
-    }
 
-    .feature-card-desc {
-        font-size: 18px;
-        color: #4E5969;
-        line-height: 1.8;
-        margin: 0;
-        transition: color 0.3s ease;
-    }
 }
 
 .introduc-four {
     background: #fff;
     position: relative;
-    min-height: calc(100vh - 100px);
+    // height: calc(100vh - 100px);
+    width: 80%;
 
     .introduc-four-container {
-        width: 80%;
+        height: 300px;
         margin: 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 100px;
-        flex: 1;
+        // flex: 1;
         background-color: rgba(247, 248, 250, 1);
         padding: 100px 80px;
         border-radius: 70px;
@@ -507,7 +318,7 @@ onUnmounted(() => {
         .image-wrapper {
             // width: 100%;
             max-width: 100%;
-            aspect-ratio: 16/7;
+            // aspect-ratio: 16/7;
             background: rgba(237, 238, 243, 1);
             border-radius: 100px;
             padding: 40px;
@@ -531,17 +342,16 @@ onUnmounted(() => {
         display: flex;
         flex-direction: column;
         gap: 30px;
+        color: #223A77;
 
         .four-main-title {
             font-size: 48px;
-            color: #1D2129;
             line-height: 1.3;
             margin: 0;
         }
 
         .four-sub-text {
             font-size: 16px;
-            color: rgba(5, 104, 50, 1);
             line-height: 1.8;
             margin: 0;
         }
@@ -551,8 +361,8 @@ onUnmounted(() => {
             align-items: center;
             gap: 12px;
             padding: 16px 40px;
-            background: rgba(11, 34, 38, 1);
-            color: #FFFFFF;
+            background: #FFDF3A;
+            // color: #223A77;
             border-radius: 50px;
             font-size: 18px;
             font-weight: 600;
@@ -607,28 +417,26 @@ onUnmounted(() => {
     }
 }
 
-.audience {
-    padding-top: 100px;
+.introduc-five {
+    background-color: #fff;
+    gap: 30px;
+    margin: 8% 0;
 
-    .audience-tab {
-        width: 50%;
-        margin: auto;
-        height: 50px;
-        background: #F8F8FF;
-        border-radius: 40px;
+    .five-item {
+        width: 20%;
+        // height: 20vh;
+        background-color: #F2F3F5;
+        padding: 30px;
+        .five-item-title{
+            color: #223A77;
+            margin: 5% 0;
 
-        .tab-text {
-            padding: 5px 20px;
-            border-radius: 27px;
-            color: #1D2129;
+        }
+
+        .five-img{
+            width: 100%;
+            height: 200px;
         }
     }
-
-    .active-tab {
-        color: #2134DE !important;
-        background-color: #E3E3FF;
-    }
-
-    .audience-content {}
 }
 </style>

@@ -4,13 +4,13 @@
         <!-- 第一步：项目信息输入 -->
         <div v-if="currentStep === 1" class="introduc introduc-one bg-img">
             <div>
-                <div class="introduc-title text-bold-600">Savelor企业合规档案</div>
-                <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">让伪装成本趋零的时代，合作始于真实</div>
+                <div class="introduc-title text-bold-600">请输入企业法定名称,开始合规核查</div>
+                <div class="introduc-text-one p-t-50 text-16 text-bold-600 text-center">为确保报告具备法律参考价值,我们将为您定位具体受监管实体</div>
 
                 <!-- 输入框和按钮区域 -->
                 <div class="input-container flex align-center justify-center p-t-30">
                     <div class="input-wrapper flex align-center">
-                        <input type="text" class="space-input" placeholder="请输入公司名称" v-model="spaceName"
+                        <input type="text" class="space-input" placeholder="请输入公司法定全称" v-model="spaceName"
                             @focus="inputFocus" @blur="inputBlur" />
                     </div>
                 </div>
@@ -27,7 +27,7 @@
 
                         <!-- DUNS编号输入框 -->
                         <div class="input-wrapper flex-1 flex align-center">
-                            <input type="text" class="space-input" placeholder="已输入9位DUNS编号 (选填)" v-model="dunsNumber"
+                            <input type="text" class="space-input" placeholder="监管编号 (选填)" v-model="dunsNumber"
                                 maxlength="9" @focus="inputFocus" @blur="inputBlur" />
                         </div>
                     </div>
@@ -56,7 +56,7 @@
             <!-- 报告类型卡片容器 -->
             <div class="report-cards-container">
                 <!-- 通用报告卡片 -->
-                <div class="report-card general-report-card" :class="{ 'selected': selectedReportType === 'general' }"
+                <div class="report-card general-report-card flex flex-column justify-between" :class="{ 'selected': selectedReportType === 'general' }"
                     @click="selectReportType('general')">
                     <div class="card-title">通用报告</div>
                     <div class="card-description">覆盖所有合规维度,提供企业风险全景视图</div>
@@ -249,20 +249,22 @@ const currentDraftId = ref('') // 当前报告id
 
 // 通用报告包含的维度
 const generalDimensions = [
-    '企业身份与存续状态',
-    '制裁与贸易管制',
-    '金融与证券监管',
-    '司法与诉讼记录',
-    '商业行为与监管'
+    '企业身份与经营许可',
+    '联邦食品安全监管记录 (FDA)',
+    '联邦食品安全监管记录 (USDA/FSIS)',
+    '州卫生检查评级',
+    '商业行为与监管',
+    '资质与认证'
 ]
 
 // 所有可选的维度
 const allDimensions = [
-    { label: '企业身份与存续状态', value: 'DIM1_IDENTITY' },
-    { label: '制裁与贸易管制', value: 'DIM2_SANCTIONS' },
-    { label: '金融与证券监管', value: 'DIM3_REGULATORY' },
-    { label: '司法与诉讼记录', value: 'DIM4_LITIGATION' },
-    { label: '商业行为与监管', value: 'DIM5_BUSINESS' }
+    { label: '企业身份与经营许可', value: 'DIM1_IDENTITY_LICENSE' },
+    { label: '联邦食品安全监管记录 (FDA)', value: 'DIM2_FDA' },
+    { label: '联邦食品安全监管记录 (USDA/FSIS)', value: 'DIM3_USDA' },
+    { label: '州卫生检查评级', value: 'DIM4_SANITATION' },
+    { label: '商业行为与监管', value: 'DIM5_LITIGATION' },
+    { label: '资质与认证', value: 'DIM6_CERTIFICATION' },
 ]
 
 // 州列表选项
@@ -563,7 +565,7 @@ onMounted(() => {
 
     .introduc-title {
         margin: auto;
-        width: 700px;
+        // width: 700px;
         text-align: center;
         font-size: 64px;
     }
@@ -818,7 +820,7 @@ onMounted(() => {
     padding: 40px 20px 60px;
     background: #fff;
     position: relative;
-    background-image: url('/img/introduc-one.png');
+    // background-image: url('/img/introduc-one.png');
     background-size: contain;
 }
 
@@ -837,7 +839,7 @@ onMounted(() => {
     background-color: rgba(0, 0, 0, 0.05);
 
     &:hover {
-        color: #2134DE;
+        color: #223A77;
         background-color: #E9EBFC;
     }
 }
@@ -863,7 +865,7 @@ onMounted(() => {
     flex: 1;
     min-width: 480px;
     max-width: 560px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 100%);
+    // background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 100%);
     border-radius: 16px;
     padding: 32px;
     border: 2px solid transparent;
@@ -871,6 +873,7 @@ onMounted(() => {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    background-color: #F7F8FA;
 
     &::before {
         content: '';
@@ -890,8 +893,13 @@ onMounted(() => {
     }
 
     &.selected {
-        border-color: #2134DE;
+        // border-color: #2134DE;
+        background-color: #223A77;
+        color: #fff;
         box-shadow: 0 8px 24px rgba(33, 52, 222, 0.2);
+        .price{
+            color: #FFDF3A !important;
+        }
     }
 }
 
@@ -910,7 +918,6 @@ onMounted(() => {
 .card-title {
     font-size: 24px;
     font-weight: 600;
-    color: #1D2129;
     margin-bottom: 12px;
     position: relative;
     z-index: 1;
@@ -918,7 +925,6 @@ onMounted(() => {
 
 .card-description {
     font-size: 14px;
-    color: #6C7C93;
     line-height: 1.6;
     margin-bottom: 24px;
     position: relative;
@@ -934,7 +940,6 @@ onMounted(() => {
 .section-title {
     font-size: 16px;
     font-weight: 600;
-    color: #1D2129;
     margin-bottom: 12px;
 }
 
@@ -945,7 +950,6 @@ onMounted(() => {
 
     li {
         font-size: 14px;
-        color: #6C7C93;
         line-height: 2;
         padding-left: 20px;
         position: relative;
@@ -980,7 +984,6 @@ onMounted(() => {
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: #1D2129;
     cursor: pointer;
     transition: all 0.3s ease;
 
@@ -988,7 +991,8 @@ onMounted(() => {
         width: 18px;
         height: 18px;
         cursor: pointer;
-        accent-color: #2134DE;
+        // accent-color: #2134DE;
+
     }
 
     &.disabled {
@@ -1007,7 +1011,7 @@ onMounted(() => {
     }
 
     &:not(.disabled):hover {
-        color: #2134DE;
+        color: #FFDF3A;
     }
 }
 
@@ -1025,7 +1029,7 @@ onMounted(() => {
 .price {
     font-size: 24px;
     font-weight: 600;
-    color: #2134DE;
+    color: #223A77;
 }
 
 .time {
@@ -1042,10 +1046,10 @@ onMounted(() => {
 .generate-btn {
     min-width: 240px;
     height: 48px;
-    background: linear-gradient(135deg, #B4E5FF 0%, #D4B4FF 100%);
+    background: #FFDF3A;
     border: none;
     border-radius: 24px;
-    color: #fff;
+    color: #223A77;
     font-size: 16px;
     font-weight: 500;
     cursor: not-allowed;
@@ -1053,7 +1057,7 @@ onMounted(() => {
     opacity: 0.6;
 
     &.active {
-        background: linear-gradient(135deg, #4A90E2 0%, #7B68EE 100%);
+        // background: linear-gradient(135deg, #4A90E2 0%, #7B68EE 100%);
         cursor: pointer;
         opacity: 1;
         box-shadow: 0 4px 16px rgba(74, 144, 226, 0.3);
@@ -1248,7 +1252,7 @@ onMounted(() => {
 .download-btn {
     min-width: 200px;
     height: 48px;
-    background: #2134DE;
+    background: #223A77;
     border: none;
     border-radius: 8px;
     color: #fff;
@@ -1271,10 +1275,10 @@ onMounted(() => {
 .verify-new-btn {
     min-width: 200px;
     height: 48px;
-    background: #E9EBFC;
+    background: #F7F8FA;
     border: none;
     border-radius: 8px;
-    color: #2134DE;
+    color: #223A77;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
@@ -1309,14 +1313,14 @@ onMounted(() => {
             width: 50px;
             height: 50px;
             border: 4px solid rgba(33, 52, 222, 0.2);
-            border-top: 4px solid #2134DE;
+            border-top: 4px solid #223A77;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 16px;
         }
 
         .loading-text {
-            color: #2134DE;
+            color: #223A77;
             font-size: 16px;
             font-weight: 500;
             margin: 0;
