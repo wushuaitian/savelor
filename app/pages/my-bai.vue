@@ -2,6 +2,58 @@
   <div class="my-space-page">
     <!-- 列表视图 -->
     <div v-if="component === 'list'">
+      <!-- 搜索模块 -->
+      <div class="searchView">
+        <div class="search-module">
+          <input
+            v-model="searchKeyword"
+            class="search-input"
+            placeholder="搜索政策主题、产品或地区，如过敏原、食用油、加州"
+            clearable
+            @keyup.enter="handleSearch"
+          />
+          <button class="search-button" @click="handleSearch">搜索</button>
+        </div>
+        <div class="filter-buttons">
+            <el-dropdown trigger="click" @visible-change="handleSourceVisibleChange">
+                <button class="filter-button">
+                    {{ selectedSource || '全部来源' }}
+                    <span class="dropdown-icon">▼</span>
+                </button>
+                <template #dropdown>
+                    <el-dropdown-menu class="custom-dropdown-menu">
+                        <el-dropdown-item
+                            v-for="item in sourceList"
+                            :key="item.code"
+                            @click="selectSource(item)"
+                            :class="{ 'is-active': selectedSourceCode === item.code }"
+                        >
+                            {{ item.name }}
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
+            </el-dropdown>
+            <el-dropdown trigger="click" @visible-change="handleYearVisibleChange">
+                <button class="filter-button year-button">
+                    {{ selectedYear || '生效年份' }}
+                    <span class="dropdown-icon">▼</span>
+                </button>
+                <template #dropdown>
+                    <el-dropdown-menu class="custom-dropdown-menu">
+                        <el-dropdown-item
+                            v-for="item in yearList"
+                            :key="item.count"
+                            @click="selectYear(item)"
+                            :class="{ 'is-active': selectedYearCount === item.year }"
+                        >
+                            {{ item.year }}
+                        </el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
+            </el-dropdown>
+        </div>
+      </div>
+
       <!-- 卡片模块 -->
       <div v-loading="loading" class="card-module" element-loading-text="加载中...">
         <!-- 空数据状态 -->
@@ -11,35 +63,41 @@
         <div v-else class="card-grid">
           <div v-for="(card, index) in cardList" :key="index" class="card-item" @mouseenter="hoverCardId = index"
             @mouseleave="hoverCardId = null">
-            <!-- 第一行：标题 -->
-            <div class="card-title">{{ card.displayName }}</div>
+            <!-- 上半部分：标题和时间 -->
+            <div class="card-top">
+              <!-- 第一行：标题 -->
+              <div class="card-title">{{ card.title }}</div>
 
-            <!-- 第二行： -->
-            <div class="card-meta">
-              <span>{{ formatDate(card.uploadTime) }}</span>
+              <!-- 第二行：时间 -->
+              <div class="card-meta">
+                <span>{{ formatDate(card.publishedAt) }}</span>
+                <span>{{ card.source }}</span>
+              </div>
             </div>
 
+            <!-- 下半部分：描述和操作按钮 -->
+            <div class="card-bottom">
+              <!-- 描述文字 -->
+              <div class="card-description">{{ card.summary }}</div>
 
-            <!-- 第四行：分割线 -->
-            <div class="divider-line"></div>
-
-            <!-- 第五行：操作按钮 -->
-            <div class="card-actions">
-              <div class="action-button view-btn"
-                :class="{ 'hover-view': hoverCardId === index && hoveredButton === 'view' }"
-                @mouseenter="hoveredButton = 'view'" @mouseleave="hoveredButton = null" @click="viewReport(card)">
-                <img :src="hoverCardId === index && hoveredButton === 'view' ? '/img/viewH.png' : '/img/view.png'"
-                  alt="查看" />
-                <span>查看</span>
-              </div>
-              <div class="action-button download-btn"
-                :class="{ 'hover-download': hoverCardId === index && hoveredButton === 'download' }"
-                @mouseenter="hoveredButton = 'download'" @mouseleave="hoveredButton = null"
-                @click="downloadReport(card)">
-                <img
-                  :src="hoverCardId === index && hoveredButton === 'download' ? '/img/downloadH.png' : '/img/download.png'"
-                  alt="下载" />
-                <span>下载</span>
+              <!-- 操作按钮 -->
+              <div class="card-actions">
+                <!-- <div class="action-button view-btn"
+                  :class="{ 'hover-view': hoverCardId === index && hoveredButton === 'view' }"
+                  @mouseenter="hoveredButton = 'view'" @mouseleave="hoveredButton = null" @click="viewReport(card)">
+                  <img :src="hoverCardId === index && hoveredButton === 'view' ? '/img/viewH.png' : '/img/view.png'"
+                    alt="查看" />
+                  <span>查看</span>
+                </div> -->
+                <div class="action-button download-btn"
+                  :class="{ 'hover-download': hoverCardId === index && hoveredButton === 'download' }"
+                  @mouseenter="hoveredButton = 'download'" @mouseleave="hoveredButton = null"
+                  @click="downloadReport(card)">
+                  <img
+                    :src="hoverCardId === index && hoveredButton === 'download' ? '/img/downloadH.png' : '/img/download.png'"
+                    alt="下载完整报告" />
+                  <span>下载完整报告</span>
+                </div>
               </div>
             </div>
           </div>
@@ -47,7 +105,7 @@
 
         <!-- 分页 -->
         <div v-if="total > 0" class="pagination-wrapper">
-          <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[9, 18, 27, 36]"
+          <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 20, 30, 40]"
             :total="total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
             @current-change="handlePageChange" />
         </div>
@@ -62,7 +120,7 @@
 <script setup>
 import { ElMessage } from 'element-plus'
 import { ref, reactive, onMounted, shallowRef } from 'vue'
-import { whitepapers } from '../../composables/msg'
+import { whitepapers, sources, years } from '../../composables/msg'
 import MyReportPreview from './my-report-preview.vue'
 // 接口
 import {
@@ -75,9 +133,20 @@ import {
 const component = shallowRef('list')
 const currentReportId = ref('')
 
+// 搜索关键词
+const searchKeyword = ref('')
+
+// 筛选条件
+const selectedSource = ref('')
+const selectedSourceCode = ref('')
+const selectedYear = ref('')
+const selectedYearCount = ref('')
+const sourceList = ref([])
+const yearList = ref([])
+
 // 分页参数
 const currentPage = ref(1)
-const pageSize = ref(9)
+const pageSize = ref(10)
 const total = ref(0)
 
 // 卡片数据
@@ -99,17 +168,69 @@ const formatDate = (dateStr) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
 
+// 获取来源列表
+const fetchSources = async () => {
+  try {
+    const res = await sources()
+    if (res.code === 200) {
+      // 在列表第一项添加"全部"选项
+      sourceList.value = [
+        { name: '全部', code: '' },
+        ...(res.data || [])
+      ]
+    }
+  } catch (error) {
+    console.error('获取来源列表失败:', error)
+  }
+}
+
+// 获取年份列表
+const fetchYears = async () => {
+  try {
+    const res = await years()
+    if (res.code === 200) {
+      // 在列表第一项添加"全部"选项
+      yearList.value = [
+        { year: '全部', count: '' },
+        ...(res.data || [])
+      ]
+    }
+  } catch (error) {
+    console.error('获取年份列表失败:', error)
+  }
+}
+
 // 获取报告列表
 const fetchReports = async () => {
   loading.value = true
   try {
-    const res = await whitepapers()
+    const params = {
+      page: currentPage.value,
+      size: pageSize.value
+    }
+
+    // 添加搜索关键词
+    if (searchKeyword.value.trim()) {
+      params.keyword = searchKeyword.value.trim()
+    }
+
+    // 添加来源筛选
+    if (selectedSourceCode.value) {
+      params.source = selectedSourceCode.value
+    }
+
+    // 添加年份筛选
+    if (selectedYearCount.value) {
+      params.year = selectedYearCount.value
+    }
+
+    const res = await whitepapers(params)
 
     if (res.code === 200) {
       cardList.length = 0
-      const list = res.data || []
+      const list = res.data.list || []
       list.forEach(item => cardList.push(item))
-      total.value = res.data.total || 0
+      total.value = res.total || list.length || 0
     } else {
       ElMessage.error(res.message || '获取报告列表失败')
     }
@@ -121,6 +242,38 @@ const fetchReports = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 搜索处理
+const handleSearch = () => {
+  currentPage.value = 1
+  fetchReports()
+}
+
+// 来源下拉框显示/隐藏事件
+const handleSourceVisibleChange = (visible) => {
+  // 不再需要在这里加载数据，已在初始化时加载
+}
+
+// 年份下拉框显示/隐藏事件
+const handleYearVisibleChange = (visible) => {
+  // 不再需要在这里加载数据，已在初始化时加载
+}
+
+// 选择来源
+const selectSource = (source) => {
+  selectedSource.value = source.name
+  selectedSourceCode.value = source.code === '' ? '' : source.code
+  currentPage.value = 1
+  fetchReports()
+}
+
+// 选择年份
+const selectYear = (year) => {
+  selectedYear.value = year.year
+  selectedYearCount.value = year.count === '' ? '' : year.year
+  currentPage.value = 1
+  fetchReports()
 }
 
 // 分页改变
@@ -176,10 +329,9 @@ const viewReport = (card) => {
 // 下载完整报告
 const downloadReport = (card) => {
   ElMessage.success('正在下载完整报告...')
-  console.log(card, 'cardcardcardcardcardcardcardcardcardcardcardcard');
 
   savelorWhitepapersDownload({
-    filename: card.fileName,
+    filename: `${card.title}.pdf`,
     action: 'preview'
   }).then(res => {
     console.log(res, 'resresresresres');
@@ -189,7 +341,7 @@ const downloadReport = (card) => {
     });
     let objUrl = URL.createObjectURL(blob);
     let fileLink = document.createElement("a");
-    let fileName = `report_${card.fileName}.pdf`;
+    let fileName = `report_${card.title}.pdf`;
     let format = "pdf";
     fileLink.href = objUrl;
     fileLink.download = `${fileName}.${format}`;
@@ -206,6 +358,8 @@ const downloadReport = (card) => {
 // 初始化加载数据
 onMounted(() => {
   fetchReports()
+  fetchSources()
+  fetchYears()
 })
 </script>
 
@@ -214,6 +368,117 @@ onMounted(() => {
   padding: 0 40px;
   min-height: 100vh;
   background: #ffffff;
+}
+
+.searchView {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 0;
+}
+
+// 搜索模块
+.search-module {
+  width: 40%;
+  height: 68px;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 7px 6px rgba(45, 47, 201, 0.06);
+  border-radius: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.search-input {
+  flex: 1;
+  height: 48px;
+  border: none;
+  outline: none;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 14px;
+  color: #1D2129;
+  background: transparent;
+  padding: 0 10px;
+}
+
+.search-input::placeholder {
+  color: #85909C;
+}
+
+.search-button {
+  width: 92px;
+  height: 48px;
+  background: #223A77;
+  border-radius: 24px;
+  border: none;
+  color: #FFFFFF;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #1a2bc5;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 14px;
+}
+
+.filter-button {
+  width: 105px;
+  height: 48px;
+  background: #223A77;
+  border-radius: 12px;
+  border: none;
+  color: #FFFFFF;
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  .dropdown-icon {
+    font-size: 10px;
+  }
+
+  &:hover {
+    background: #FFDF3A;
+    color: #223A77;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &.year-button {
+    background: rgba(34, 58, 119, 0.2);
+    border: 1px solid #223A77;
+    color: #223A77;
+
+    &:hover {
+      background: #223A77;
+      color: #FFFFFF;
+    }
+  }
 }
 
 // 卡片模块
@@ -265,31 +530,67 @@ onMounted(() => {
 
 .card-item {
   width: 100%;
-  height: 168px;
+  height: 298px;
   background: #F7F8FA;
   border-radius: 16px;
   border: 1px solid #E4E5EA;
-  padding: 16px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  overflow: hidden;
 
   &:hover {
     background: #eeeff7;
-    border: 1px solid #2134DE;
   }
+}
+
+.card-top {
+  width: 100%;
+  height: 126px;
+  background: #223A77;
+  border-radius: 16px 16px 0px 0px;
+  border: 1px solid #E4E5EA;
+  flex-shrink: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-bottom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-description {
+  font-family: PingFangSC, PingFang SC;
+  font-weight: 400;
+  font-size: 16px;
+  color: #4E5969;
+  line-height: 22px;
+  text-align: left;
+  font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  padding: 38px 30px 0px 30px;
 }
 
 // 卡片标题
 .card-title {
-  width: 500px;
-  height: 22px;
+  width: 100%;
+  height: 28px;
   font-family: PingFangSC, PingFang SC;
   font-weight: 500;
-  font-size: 16px;
-  color: #1D2129;
-  line-height: 22px;
+  font-size: 20px;
+  color: #FFFFFF;
+  line-height: 28px;
   text-align: left;
   font-style: normal;
   white-space: nowrap;
@@ -302,18 +603,25 @@ onMounted(() => {
 .card-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
   margin: 15px 0px 17px 0px;
 
   >span {
-    height: 20px;
     font-family: PingFangSC, PingFang SC;
     font-weight: 400;
-    font-size: 14px;
-    color: #4E5969;
-    line-height: 20px;
+    font-size: 16px;
+    color: #FFFFFF;
+    line-height: 22px;
     text-align: left;
     font-style: normal;
+  }
+
+  >span:first-child {
+    height: 22px;
+  }
+
+  >span:last-child {
+    height: 22px;
   }
 
   .divider {
@@ -360,10 +668,11 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 14px;
+  padding: 16px 16px;
 }
 
 .action-button {
-  width: 74px;
+  width: 120px;
   height: 36px;
   background: #E4E5EA;
   border-radius: 8px;
@@ -392,8 +701,8 @@ onMounted(() => {
 
   &.hover-download,
   &.hover-view {
-    background: #c3c8f6;
-    color: #2134DE;
+    background: #FFDF3A;
+    color: #223A77;
   }
 }
 
@@ -406,4 +715,35 @@ onMounted(() => {
   padding: 24px 0;
   background-color: transparent;
 }
+
+// 下拉菜单统一样式
+:deep(.custom-dropdown-menu) {
+  width: 105px;
+  border-radius: 12px;
+  padding: 4px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  .el-dropdown-menu__item {
+    padding: 10px 16px;
+    font-family: PingFangSC, PingFang SC;
+    font-weight: 400;
+    font-size: 14px;
+    color: #4E5969;
+    line-height: 22px;
+    text-align: left;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #F2F3F5;
+      color: #223A77;
+    }
+
+    &.is-active {
+      background: #223A77;
+      color: #FFFFFF;
+    }
+  }
+}
+
+
 </style>
