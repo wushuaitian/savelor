@@ -41,7 +41,24 @@ export function reportsDelete(data: RequestParams) {
 //白皮书列表
 export function whitepapers(data: RequestParams) {
     return request({
-        url: `/api/whitepapers`,
+        url: `/api/whitepapers/search`,
+        method: 'get',
+        params: data,
+    })
+}
+
+//获取来源选项列表
+export function sources(data: RequestParams) {
+    return request({
+        url: `/api/whitepapers/sources`,
+        method: 'get',
+        params: data,
+    })
+}
+//获取年份选项列表
+export function years(data: RequestParams) {
+    return request({
+        url: `/api/whitepapers/years`,
         method: 'get',
         params: data,
     })
