@@ -148,60 +148,16 @@
         :show-close="true">
         <el-form ref="formRef" :label-position="top" label-width="auto" :model="formLabelAlign" style="max-width: 600px"
             :rules="rules">
-            <el-form-item v-if="curretnDialog === 'register'" label="国家/地区" label-position="top" prop="country">
+            <el-form-item v-if="curretnDialog === 'register'" label="国家/地区" label-position="top" prop="nations">
                 <div class="country-state-input">
                     <div class="country-prefix">美国</div>
-                    <el-select v-model="formLabelAlign.state" class="state-select" placeholder="请选择州">
-                        <el-option label="阿拉巴马州" value="AL" />
-                        <el-option label="阿拉斯加州" value="AK" />
-                        <el-option label="亚利桑那州" value="AZ" />
-                        <el-option label="阿肯色州" value="AR" />
-                        <el-option label="加利福尼亚州" value="CA" />
-                        <el-option label="科罗拉多州" value="CO" />
-                        <el-option label="康涅狄格州" value="CT" />
-                        <el-option label="特拉华州" value="DE" />
-                        <el-option label="佛罗里达州" value="FL" />
-                        <el-option label="佐治亚州" value="GA" />
-                        <el-option label="夏威夷州" value="HI" />
-                        <el-option label="爱达荷州" value="ID" />
-                        <el-option label="伊利诺伊州" value="IL" />
-                        <el-option label="印第安纳州" value="IN" />
-                        <el-option label="爱荷华州" value="IA" />
-                        <el-option label="堪萨斯州" value="KS" />
-                        <el-option label="肯塔基州" value="KY" />
-                        <el-option label="路易斯安那州" value="LA" />
-                        <el-option label="缅因州" value="ME" />
-                        <el-option label="马里兰州" value="MD" />
-                        <el-option label="马萨诸塞州" value="MA" />
-                        <el-option label="密歇根州" value="MI" />
-                        <el-option label="明尼苏达州" value="MN" />
-                        <el-option label="密西西比州" value="MS" />
-                        <el-option label="密苏里州" value="MO" />
-                        <el-option label="蒙大拿州" value="MT" />
-                        <el-option label="内布拉斯加州" value="NE" />
-                        <el-option label="内华达州" value="NV" />
-                        <el-option label="新罕布什尔州" value="NH" />
-                        <el-option label="新泽西州" value="NJ" />
-                        <el-option label="新墨西哥州" value="NM" />
-                        <el-option label="纽约州" value="NY" />
-                        <el-option label="北卡罗来纳州" value="NC" />
-                        <el-option label="北达科他州" value="ND" />
-                        <el-option label="俄亥俄州" value="OH" />
-                        <el-option label="俄克拉荷马州" value="OK" />
-                        <el-option label="俄勒冈州" value="OR" />
-                        <el-option label="宾夕法尼亚州" value="PA" />
-                        <el-option label="罗得岛州" value="RI" />
-                        <el-option label="南卡罗来纳州" value="SC" />
-                        <el-option label="南达科他州" value="SD" />
-                        <el-option label="田纳西州" value="TN" />
-                        <el-option label="德克萨斯州" value="TX" />
-                        <el-option label="犹他州" value="UT" />
-                        <el-option label="佛蒙特州" value="VT" />
-                        <el-option label="弗吉尼亚州" value="VA" />
-                        <el-option label="华盛顿州" value="WA" />
-                        <el-option label="西弗吉尼亚州" value="WV" />
-                        <el-option label="威斯康星州" value="WI" />
-                        <el-option label="怀俄明州" value="WY" />
+                    <el-select v-model="formLabelAlign.state_code" class="state-select" placeholder="请选择州">
+                        <el-option
+                            v-for="state in usStatesList"
+                            :key="state.value"
+                            :label="state.label"
+                            :value="state.value"
+                        />
                     </el-select>
                 </div>
             </el-form-item>
@@ -312,7 +268,8 @@ import {
     usersMe,
     usersProfile,
     changePassword,
-    captcha
+    captcha,
+    savelorMetaUsStates
 } from "../../composables/login.ts";
 import {
     msgList
@@ -796,8 +753,26 @@ const captchaId = ref('');
 const captchaTimer = ref(null);
 const captchaExpiresIn = ref(0);
 
+// 州列表
+const usStatesList = ref([]);
+
 const handleShowLoginModal = () => {
     loginOpen('login');
+};
+
+// 获取美国州列表
+const fetchUsStates = async () => {
+    try {
+        const res = await savelorMetaUsStates({});
+        if (res.code === 200 && res.data) {
+            usStatesList.value = res.data.map(item => ({
+                label: item.nameZh,
+                value: item.code
+            }));
+        }
+    } catch (error) {
+        console.error('获取州列表失败:', error);
+    }
 };
 
 // 获取验证码
@@ -848,8 +823,8 @@ const loginOpen = (text) => {
             formRef.value.resetFields();
         } else {
             // 如果表单引用还未初始化，直接重置数据
-            formLabelAlign.country = 'US';
-            formLabelAlign.state = '';
+            formLabelAlign.nations = 'US';
+            formLabelAlign.state_code = '';
             formLabelAlign.username = '';
             formLabelAlign.email = '';
             formLabelAlign.password = '';
@@ -857,9 +832,12 @@ const loginOpen = (text) => {
             formLabelAlign.captcha = '';
         }
 
-        // 如果是注册，获取验证码
+        // 如果是注册，获取验证码和州列表
         if (text === 'register') {
             fetchCaptcha();
+            if (usStatesList.value.length === 0) {
+                fetchUsStates();
+            }
         } else {
             // 清除验证码
             captchaImage.value = '';
@@ -874,8 +852,8 @@ const loginOpen = (text) => {
 
 // 表单
 const formLabelAlign = reactive({
-    country: 'US',
-    state: '',
+    nations: 'US',
+    state_code: '',
     username: '',
     email: '',
     password: '',
@@ -916,10 +894,10 @@ const validateConfirmPassword = (rule, value, callback) => {
 
 // 表单校验规则
 const rules = computed(() => ({
-    country: curretnDialog.value === 'register' ? [
+    nations: curretnDialog.value === 'register' ? [
         { required: true, message: '请选择国家', trigger: 'change' }
     ] : [],
-    state: curretnDialog.value === 'register' ? [
+    state_code: curretnDialog.value === 'register' ? [
         { required: true, message: '请选择州', trigger: 'change' }
     ] : [],
     username: [
@@ -983,8 +961,8 @@ const loginButton = async () => {
         } else {
             // 注册逻辑
             savelorUserRegister({
-                country: formLabelAlign.country,
-                state: formLabelAlign.state,
+                nations: formLabelAlign.nations,
+                stateCode: formLabelAlign.state_code,
                 email: formLabelAlign.email,
                 password: formLabelAlign.password,
                 username: formLabelAlign.username,
