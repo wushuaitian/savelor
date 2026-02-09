@@ -553,7 +553,7 @@ onMounted(() => {
 
 .introduc-one {
     // padding-top: 140px;
-    background-image: url('/img/introduc-one.png');
+    background-image: url('/img/homePageBack.png');
     display: flex;
     align-items: center;
     justify-content: center;
@@ -713,7 +713,7 @@ onMounted(() => {
 .next-step-btn {
     width: 200px;
     height: 48px;
-    background-color: rgba(156, 163, 175, 0.6);
+    background-color: #E4E5EA;
     border: none;
     border-radius: 24px;
     color: #fff;
@@ -726,18 +726,18 @@ onMounted(() => {
     justify-content: center;
 
     &:disabled {
-        background-color: rgba(156, 163, 175, 0.6);
+        background-color:#E4E5EA;
         opacity: 0.8;
     }
 }
 
 .next-step-btn-active {
-    background-color: #2134DE;
+    background-color: #223A77;
     cursor: pointer;
     opacity: 1;
 
     &:hover {
-        background-color: #1a2bb8;
+        background-color: #223A77;
         transform: scale(1.02);
     }
 
